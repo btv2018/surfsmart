@@ -1,16 +1,61 @@
 
+var SERVICE_MANAGER = {
+    services: {
+        "duckduckgo": "<i>search query</i>",
+        "youtube": "<i>search query</i>",
+        "flightsearch": "<i>origin</i> to <i>destination</i> on <i>departure date</i> [<i>back date</i>] [direct]",
+        "route": "<i>origin</i> to <i>destination</i>",
+        "wikimedia": "[<i>language code</i>] <i>search query</i>",
+    },
+    init: function () {
+//        this.services.append('c');
+        console.log(this.services);
+    },
+    findService: function (namePrefix) {
+        console.log(namePrefix);
+        namePrefix = namePrefix.split(" ", 1)[0];
+        if (namePrefix && namePrefix.length > 0) {
+            for (var service in this.services) {
+                console.log(service);
+                if (service.startsWith(namePrefix)) {
+                    return this.services[service];
+                }
+            }
+        }
+    }
+};
+
 function main() {
+    SERVICE_MANAGER.init();
+
     var queryInput = document.getElementById("queryInput");
 
+    queryInput.onchange = dynamicHelp;
+    queryInput.onkeyup = dynamicHelp;
+//    setInterval(dynamicHelp, 500);
+
     queryInput.addEventListener("keypress", function(event) {
+        var query = queryInput.value;
         if (event.keyCode == 13) {
-            var query = queryInput.value;
             //window.location = processQuery(query);
             var nextUrl = processQuery(query);
             window.open(nextUrl);
         }
     });
 }
+
+function dynamicHelp() {
+    var serviceHelp = document.getElementById("service-help");
+    var query = queryInput.value;
+
+    var service = SERVICE_MANAGER.findService(query);
+    if (service) {
+        serviceHelp.innerHTML = service;
+    } else {
+        serviceHelp.innerHTML = "";
+    }
+}
+
 
 // List of all languages from https://meta.wikimedia.org/wiki/Table_of_Wikimedia_projects
 // grep "<\!\-\-" -v | sed 's/.*2=\([a-z\-]*\)|.*/\1/'
@@ -40,6 +85,7 @@ function processQuery(query) {
 
     var serviceUrl = null;
 
+
     if ("duckduckgo".startsWith(serviceName)) {
         serviceUrl = "https://duckduckgo.com/?q=" + encodeURIComponent(serviceArgs);
 
@@ -48,6 +94,9 @@ function processQuery(query) {
 
     } else if ("googleimages".startsWith(serviceName) || serviceName == "gi") {
         serviceUrl = "https://www.google.de/search?q=" + encodeURIComponent(serviceArgs) + " &tbm=isch";
+
+    } else if ("youtube".startsWith(serviceName)) {
+        serviceUrl = "https://www.youtube.com/results?search_query=" + encodeURIComponent(serviceArgs);
 
     } else if ("map".startsWith(serviceName)) {
         serviceUrl = "https://www.google.com/maps?q=" + encodeURIComponent(serviceArgs);

@@ -23,8 +23,15 @@ p {
   width: 100%;
   text-align: center;
 }
-div.form{
+div.form {
     text-align: center;
+    padding: 8px 1px 1px 1px;
+}
+div.form-outer {
+    text-align: center;
+}
+div#service-help {
+/*    text-align: left; */
     padding: 8px;
 }
 
