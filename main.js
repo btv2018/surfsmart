@@ -101,7 +101,7 @@ function processQuery(query) {
     } else if ("map".startsWith(serviceName)) {
         serviceUrl = "https://www.google.com/maps?q=" + encodeURIComponent(serviceArgs);
 
-    } else if ("routing".startsWith(serviceName)) {
+    } else if ("route".startsWith(serviceName)) {
         var index = serviceArgs.indexOf(" to ");
         if (index != -1) {
             var origin = serviceArgs.substring(0, index);
