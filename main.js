@@ -25,6 +25,59 @@ var SERVICE_MANAGER = {
     }
 };
 
+
+$(document).ready(function() {
+    main();
+//    $( "#date" ).autocomplete({
+//        //source: [ "c++", "java", "php", "coldfusion", "javascript", "asp", "ruby" ]
+//        source: "https://www.google.com/complete/search?client=firefox&amp;q=tipa"
+//    });
+
+    $( "#date" ).autocomplete({
+        source: function(request, response) {
+            var firstSpaceIndex = request.term.indexOf(" ");
+            if (firstSpaceIndex == -1) {
+                return;
+            }
+            var serviceName = request.term.substring(0, firstSpaceIndex);
+            var serviceArgs = request.term.substring(firstSpaceIndex + 1);
+            if (serviceArgs.length < 3) {
+                return;
+            }
+            $.ajax({
+                url: "https://www.google.com/complete/search?client=firefox",
+                dataType: "jsonp",
+                data: {
+                    q: serviceArgs
+                },
+                success: function( data ) {
+                    console.log(data[1]);
+                    response(data[1]);
+                }
+            });
+        },
+        minLength: 3,
+        focus: function(event, ui) {
+            var term = $("#date").val();
+            var firstSpaceIndex = term.indexOf(" ");
+            if (firstSpaceIndex == -1) {
+                return;
+            }
+            var serviceName = term.substring(0, firstSpaceIndex);
+            var serviceArgs = term.substring(firstSpaceIndex + 1);
+            $("#date").val(serviceName + " " + ui.item.value);
+            return false;
+        },
+        open: function() {
+            $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+        },
+        close: function() {
+            $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+        }
+   });
+
+});
+
 function main() {
     SERVICE_MANAGER.init();
 
