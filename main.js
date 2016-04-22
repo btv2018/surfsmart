@@ -29,6 +29,12 @@ var SERVICE_MANAGER = {
 function autocomplete(query, response) {
     var firstSpaceIndex = query.indexOf(" ");
     if (firstSpaceIndex == -1) {
+        // TODO: Add suggestions for service names.
+        var serviceNames = ["google", "youtube", "duckduckgo", "flight"];
+        var filteredServices = $(serviceNames).filter(function(i, value) {
+            return value.startsWith(query);
+        });
+        response(filteredServices);
         return;
     }
     var serviceName = query.substring(0, firstSpaceIndex);
@@ -52,6 +58,7 @@ function autocomplete(query, response) {
                 response(data[1]);
             }
         });
+
     } else if ("youtube".startsWith(serviceName)) {
         console.log("Requesting suggestions for " + serviceArgs);
         $.ajax({
@@ -72,6 +79,7 @@ function autocomplete(query, response) {
                 response(suggestions);
             }
         });
+
     } else if ("duckduckgo".startsWith(serviceName)) {
         // duckduckgo suggestions
         console.log("Requesting suggestions for " + serviceArgs);
@@ -93,6 +101,9 @@ function autocomplete(query, response) {
             }
         });
     }
+
+// No possible suggestions. Empty array is returned to cose previous list.
+    response([]);
 }
 
 
@@ -107,7 +118,7 @@ $(document).ready(function() {
         source: function(request, response) {
             autocomplete(request.term, response);
         },
-        minLength: 3,
+        minLength: 0,
         focus: function(event, ui) {
             var term = $("#date").val();
             var firstSpaceIndex = term.indexOf(" ");
