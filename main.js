@@ -16,7 +16,7 @@ var SERVICE_MANAGER = {
         namePrefix = namePrefix.split(" ", 1)[0];
         if (namePrefix && namePrefix.length > 0) {
             for (var service in this.services) {
-                console.log(service);
+//                console.log(service);
                 if (service.startsWith(namePrefix)) {
                     return this.services[service];
                 }
@@ -25,11 +25,27 @@ var SERVICE_MANAGER = {
     }
 };
 
+function parseQuery(query) {
+    query = query.trimLeft();
+    var firstSpaceIndex = query.indexOf(" ");
+
+    var serviceName = query;
+    var serviceArgs = undefined;
+    if (firstSpaceIndex > 0) {
+        serviceName = query.substring(0, firstSpaceIndex);
+        serviceArgs = query.substring(firstSpaceIndex + 1);
+    }
+    return {serviceName: serviceName, serviceArgs: serviceArgs};
+}
+
 
 function autocomplete(query, response) {
-    var firstSpaceIndex = query.indexOf(" ");
-    if (firstSpaceIndex == -1) {
-        // TODO: Add suggestions for service names.
+    var parsedQuery = parseQuery(query);
+    var serviceName = parsedQuery.serviceName;
+    var serviceArgs = parsedQuery.serviceArgs;
+
+    if (!serviceArgs) {
+        // No service arguments. Show service name suggestions.
         var serviceNames = ["google", "youtube", "duckduckgo", "flight"];
         var filteredServices = $(serviceNames).filter(function(i, value) {
             return value.startsWith(query);
@@ -37,10 +53,9 @@ function autocomplete(query, response) {
         response(filteredServices);
         return;
     }
-    var serviceName = query.substring(0, firstSpaceIndex);
-    var serviceArgs = query.substring(firstSpaceIndex + 1);
 
-    console.log("serviceName=" + serviceName);
+    console.log("serviceName=" + parsedQuery.serviceName);
+
     if (serviceArgs.length < 1) {
         return;
     }
@@ -109,35 +124,32 @@ function autocomplete(query, response) {
 
 $(document).ready(function() {
     main();
-//    $( "#date" ).autocomplete({
-//        //source: [ "c++", "java", "php", "coldfusion", "javascript", "asp", "ruby" ]
-//        source: "https://www.google.com/complete/search?client=firefox&amp;q=tipa"
-//    });
+    var queryInput = $("#queryInput");
 
-    $("#queryInput").autocomplete({
+    queryInput.autocomplete({
         source: function(request, response) {
             autocomplete(request.term, response);
         },
         minLength: 0,
         focus: function(event, ui) {
-            var term = $("#queryInput").val();
-            var firstSpaceIndex = term.indexOf(" ");
-            if (firstSpaceIndex == -1) {
+            var term = queryInput.val();
+            var parsedQuery = parseQuery(term);
+            var serviceName = parsedQuery.serviceName;
+            var serviceArgs = parsedQuery.serviceArgs;
+            if (!serviceArgs) {
                 return;
             }
-            var serviceName = term.substring(0, firstSpaceIndex);
-            var serviceArgs = term.substring(firstSpaceIndex + 1);
-            $("#queryInput").val(serviceName + " " + ui.item.value);
+            queryInput.val(serviceName + " " + ui.item.value);
             return false;
         },
         select: function(event, ui) {
             return false;
         },
         open: function() {
-            $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+            $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
         },
         close: function() {
-            $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+            $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
         }
    });
 
@@ -190,14 +202,14 @@ function processQuery(query) {
         return obj.length != 0;
     }
 
-    query = query.trim();
-    var firstSpaceIndex = query.indexOf(" ");
-    if (firstSpaceIndex < 1) {
+    var parsedQuery = parseQuery(query);
+    var serviceName = parsedQuery.serviceName;
+    var serviceArgs = parsedQuery.serviceArgs;
+
+    if (!serviceArgs) {
         console.log("Error: bad query");
         return;
     }
-    var serviceName = query.substring(0, firstSpaceIndex).toLowerCase();
-    var serviceArgs = query.substring(firstSpaceIndex + 1);
 
     console.log(serviceName + " > " + serviceArgs);
 
