@@ -26,6 +26,56 @@ var SERVICE_MANAGER = {
 };
 
 
+function autocomplete(query, response) {
+    var firstSpaceIndex = query.indexOf(" ");
+    if (firstSpaceIndex == -1) {
+        return;
+    }
+    var serviceName = query.substring(0, firstSpaceIndex);
+    var serviceArgs = query.substring(firstSpaceIndex + 1);
+
+    console.log("serviceName=" + serviceName);
+//    if (serviceArgs.length < 3) {
+//        return;
+//    }
+
+    if ("google".startsWith(serviceName)) {
+        // google suggestions
+        $.ajax({
+            url: "https://www.google.com/complete/search?client=firefox",
+            dataType: "jsonp",
+            data: {
+                q: serviceArgs
+            },
+            success: function(data) {
+                console.log("Google suggestions: " + data[1]);
+                response(data[1]);
+            }
+        });
+    } else if ("duckduckgo".startsWith(serviceName)) {
+        // duckduckgo suggestions
+        console.log("Requesting suggestions for " + serviceArgs);
+        $.ajax({
+            url: "https://ac.duckduckgo.com/ac",
+            dataType: "jsonp",
+            data: {
+                q: serviceArgs
+            },
+            success: function(data) {
+                console.log("DuckDuckGo suggestions: " + data);
+                console.log(data);
+                var suggestions = [];
+                for (var index in data) {
+                    suggestions.push(data[index]["phrase"]);
+                }
+                console.log("DuckDuckGo suggestions: " + suggestions);
+                response(suggestions);
+            }
+        });
+    }
+}
+
+
 $(document).ready(function() {
     main();
 //    $( "#date" ).autocomplete({
@@ -35,26 +85,7 @@ $(document).ready(function() {
 
     $( "#date" ).autocomplete({
         source: function(request, response) {
-            var firstSpaceIndex = request.term.indexOf(" ");
-            if (firstSpaceIndex == -1) {
-                return;
-            }
-            var serviceName = request.term.substring(0, firstSpaceIndex);
-            var serviceArgs = request.term.substring(firstSpaceIndex + 1);
-            if (serviceArgs.length < 3) {
-                return;
-            }
-            $.ajax({
-                url: "https://www.google.com/complete/search?client=firefox",
-                dataType: "jsonp",
-                data: {
-                    q: serviceArgs
-                },
-                success: function( data ) {
-                    console.log(data[1]);
-                    response(data[1]);
-                }
-            });
+            autocomplete(request.term, response);
         },
         minLength: 3,
         focus: function(event, ui) {
@@ -66,6 +97,9 @@ $(document).ready(function() {
             var serviceName = term.substring(0, firstSpaceIndex);
             var serviceArgs = term.substring(firstSpaceIndex + 1);
             $("#date").val(serviceName + " " + ui.item.value);
+            return false;
+        },
+        select: function(event, ui) {
             return false;
         },
         open: function() {
