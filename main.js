@@ -52,6 +52,26 @@ function autocomplete(query, response) {
                 response(data[1]);
             }
         });
+    } else if ("youtube".startsWith(serviceName)) {
+        console.log("Requesting suggestions for " + serviceArgs);
+        $.ajax({
+            url: "https://clients1.google.com/complete/search?client=youtube&hl=en&ds=yt",
+            dataType: "jsonp",
+            data: {
+                q: serviceArgs
+            },
+            success: function(data) {
+                console.log("YouTube suggestions: " + data);
+                console.log(data);
+                data = data[1];
+                var suggestions = [];
+                for (var index in data) {
+                    suggestions.push(data[index][0]);
+                }
+                console.log("YouTube suggestions: " + suggestions);
+                response(suggestions);
+            }
+        });
     } else if ("duckduckgo".startsWith(serviceName)) {
         // duckduckgo suggestions
         console.log("Requesting suggestions for " + serviceArgs);
