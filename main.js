@@ -41,9 +41,9 @@ function autocomplete(query, response) {
     var serviceArgs = query.substring(firstSpaceIndex + 1);
 
     console.log("serviceName=" + serviceName);
-//    if (serviceArgs.length < 3) {
-//        return;
-//    }
+    if (serviceArgs.length < 1) {
+        return;
+    }
 
     if ("google".startsWith(serviceName)) {
         // google suggestions
@@ -114,20 +114,20 @@ $(document).ready(function() {
 //        source: "https://www.google.com/complete/search?client=firefox&amp;q=tipa"
 //    });
 
-    $( "#date" ).autocomplete({
+    $("#queryInput").autocomplete({
         source: function(request, response) {
             autocomplete(request.term, response);
         },
         minLength: 0,
         focus: function(event, ui) {
-            var term = $("#date").val();
+            var term = $("#queryInput").val();
             var firstSpaceIndex = term.indexOf(" ");
             if (firstSpaceIndex == -1) {
                 return;
             }
             var serviceName = term.substring(0, firstSpaceIndex);
             var serviceArgs = term.substring(firstSpaceIndex + 1);
-            $("#date").val(serviceName + " " + ui.item.value);
+            $("#queryInput").val(serviceName + " " + ui.item.value);
             return false;
         },
         select: function(event, ui) {
