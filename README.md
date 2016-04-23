@@ -8,7 +8,7 @@
   - add query to url
   - update warning message
  - UI
-  - load service icon on the left side of the input
+  - show service icon on the left side of the input
  - suggestions
   - add suggestions for search services
    + google

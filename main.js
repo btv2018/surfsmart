@@ -1,4 +1,113 @@
 
+var duckduckgoService = {
+    name: "duckduckgo",
+    aliases: ["d"],
+    description: "DuckDuckGo Web search",
+    helpMessage: "<span class='help-message-input'>search query</span>",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) { return "url"; }, // go("url") or error("message")
+    getSuggestions: function(serviceArgs, response) {
+        return response(["tesla model s", "tesla SUV"]);
+        $.ajax({
+            url: "https://ac.duckduckgo.com/ac",
+            dataType: "jsonp",
+            data: {
+                q: serviceArgs
+            },
+            success: function(data) {
+                console.log("DuckDuckGo suggestions: " + data);
+                console.log(data);
+                var suggestions = [];
+                for (var index in data) {
+                    suggestions.push(data[index]["phrase"]);
+                }
+                console.log("DuckDuckGo suggestions: " + suggestions);
+                response(suggestions);
+            }
+        });
+    }
+};
+
+var googleService = {
+    name: "google",
+    aliases: ["g"],
+    description: "Google Web search",
+    helpMessage: "<span class='help-message-input'>search query</span>",
+    getSuggestions: function(serviceArgs, response) {
+        return response(["elon musk", "elon musk spacex"]);
+        $.ajax({
+            url: "https://www.google.com/complete/search?client=firefox",
+            dataType: "jsonp",
+            data: {
+                q: serviceArgs
+            },
+            success: function(data) {
+                console.log("Google suggestions: " + data[1]);
+                response(data[1]);
+            }
+        });
+    }
+};
+
+var googleImagesService = {
+    name: "googleimages",
+    aliases: ["gi"],
+    description: "Google Images search",
+    helpMessage: "<span class='help-message-input'>search query</span>",
+    getSuggestions: function(serviceArgs, response) {
+        return response(["flowers", "flower field"]);
+    }
+};
+
+var youtubeService = {
+    name: "youtube",
+    aliases: ["y"],
+    description: "YouTube search",
+    helpMessage: "<span class='help-message-input'>search query</span>",
+    getSuggestions: function(serviceArgs, response) {
+        return response(["manowar", "manowar the sons of odin"]);
+        $.ajax({
+            url: "https://clients1.google.com/complete/search?client=youtube&hl=en&ds=yt",
+            dataType: "jsonp",
+            data: {
+                q: serviceArgs
+            },
+            success: function(data) {
+                console.log("YouTube suggestions: " + data);
+                console.log(data);
+                data = data[1];
+                var suggestions = [];
+                for (var index in data) {
+                    suggestions.push(data[index][0]);
+                }
+                console.log("YouTube suggestions: " + suggestions);
+                response(suggestions);
+            }
+        });
+    }
+};
+
+var flightSearchService = {
+    name: "flight",
+    aliases: ["f"],
+    description: "Flight search on Momondo.ru",
+    helpMessage: "<span class='help-message-input'>origin</span> to <span class='help-message-input'>destination</span> on <span class='help-message-input'>departure date</span> [<span class='help-message-input'>back date</span>] [direct]",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) { return "momondo"; }, // go("url") or error("message")
+};
+
+
+var SERVICES = [duckduckgoService, googleService, googleImagesService, youtubeService, flightSearchService];
+
+function findService(name) {
+    for (var i in SERVICES) {
+        var service = SERVICES[i];
+        if (service.name.startsWith(name)) {
+            return service;
+        }
+    }
+}
+
 var SERVICE_MANAGER = {
     services: {
         "duckduckgo": "<i>search query</i>",
@@ -33,7 +142,7 @@ function parseQuery(query) {
     var serviceArgs = undefined;
     if (firstSpaceIndex > 0) {
         serviceName = query.substring(0, firstSpaceIndex);
-        serviceArgs = query.substring(firstSpaceIndex + 1);
+        serviceArgs = query.substring(firstSpaceIndex + 1).trim();
     }
     return {serviceName: serviceName, serviceArgs: serviceArgs};
 }
@@ -46,78 +155,28 @@ function autocomplete(query, response) {
 
     if (!serviceArgs) {
         // No service arguments. Show service name suggestions.
-        var serviceNames = ["google", "youtube", "duckduckgo", "flight"];
-        var filteredServices = $(serviceNames).filter(function(i, value) {
-            return value.startsWith(query);
-        });
-        response(filteredServices);
+        var serviceNameSuggestions = [];
+        for (var i in SERVICES) {
+            var service = SERVICES[i];
+            if (service.name.startsWith(serviceName)) {
+                serviceNameSuggestions.push(service.name);
+            }
+        }
+        response(serviceNameSuggestions);
         return;
     }
 
-    console.log("serviceName=" + parsedQuery.serviceName);
-
-    if (serviceArgs.length < 1) {
-        return;
+    var service = findService(serviceName);
+    if (service) {
+        console.log("Service " + service.name + " found");
+        if (service.getSuggestions) {
+            console.log("Requesting suggestions for '" + serviceArgs + "'");
+            service.getSuggestions(serviceArgs, response);
+            return;
+        }
     }
 
-    if ("google".startsWith(serviceName)) {
-        // google suggestions
-        $.ajax({
-            url: "https://www.google.com/complete/search?client=firefox",
-            dataType: "jsonp",
-            data: {
-                q: serviceArgs
-            },
-            success: function(data) {
-                console.log("Google suggestions: " + data[1]);
-                response(data[1]);
-            }
-        });
-
-    } else if ("youtube".startsWith(serviceName)) {
-        console.log("Requesting suggestions for " + serviceArgs);
-        $.ajax({
-            url: "https://clients1.google.com/complete/search?client=youtube&hl=en&ds=yt",
-            dataType: "jsonp",
-            data: {
-                q: serviceArgs
-            },
-            success: function(data) {
-                console.log("YouTube suggestions: " + data);
-                console.log(data);
-                data = data[1];
-                var suggestions = [];
-                for (var index in data) {
-                    suggestions.push(data[index][0]);
-                }
-                console.log("YouTube suggestions: " + suggestions);
-                response(suggestions);
-            }
-        });
-
-    } else if ("duckduckgo".startsWith(serviceName)) {
-        // duckduckgo suggestions
-        console.log("Requesting suggestions for " + serviceArgs);
-        $.ajax({
-            url: "https://ac.duckduckgo.com/ac",
-            dataType: "jsonp",
-            data: {
-                q: serviceArgs
-            },
-            success: function(data) {
-                console.log("DuckDuckGo suggestions: " + data);
-                console.log(data);
-                var suggestions = [];
-                for (var index in data) {
-                    suggestions.push(data[index]["phrase"]);
-                }
-                console.log("DuckDuckGo suggestions: " + suggestions);
-                response(suggestions);
-            }
-        });
-    }
-
-// No possible suggestions. Empty array is returned to cose previous list.
+    // No possible suggestions. Empty array is returned to close previous list.
     response([]);
 }
 
