@@ -108,6 +108,9 @@ function findService(name) {
     }
 }
 
+
+// ============================================================================
+
 var SERVICE_MANAGER = {
     services: {
         "duckduckgo": "<i>search query</i>",
@@ -153,7 +156,7 @@ function autocomplete(query, response) {
     var serviceName = parsedQuery.serviceName;
     var serviceArgs = parsedQuery.serviceArgs;
 
-    if (!serviceArgs) {
+    if (serviceArgs === undefined) {
         // No service arguments. Show service name suggestions.
         var serviceNameSuggestions = [];
         for (var i in SERVICES) {
