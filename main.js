@@ -87,6 +87,24 @@ var youtubeService = {
     }
 };
 
+var mapSearchService = {
+    name: "map",
+    aliases: ["m"],
+    description: "Google Maps search",
+    helpMessage: "<span class='help-message-input'>search query</span>",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) { return "map"; }, // go("url") or error("message")
+};
+
+var routingService = {
+    name: "route",
+    aliases: ["r"],
+    description: "Google Maps routing",
+    helpMessage: "<span class='help-message-input'>origin</span> to <span class='help-message-input'>destination</span>",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) { return "route"; }, // go("url") or error("message")
+};
+
 var flightSearchService = {
     name: "flight",
     aliases: ["f"],
@@ -97,7 +115,32 @@ var flightSearchService = {
 };
 
 
-var SERVICES = [duckduckgoService, googleService, googleImagesService, youtubeService, flightSearchService];
+var wikipediaService = {
+    name: "wikipedia",
+    aliases: ["w"],
+    description: "Wikipedia routing",
+    helpMessage: "[<span class='help-message-input'>language code</span>] <span class='help-message-input'>search query</span>",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) { return "wikipedia"; }, // go("url") or error("message")
+};
+
+var cppdocService = {
+    name: "cppdoc",
+    aliases: ["c"],
+    description: "STL documentation search on cplusplus.com",
+    helpMessage: "<span class='help-message-input'>search query</span>",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) { return "cplusplus"; }, // go("url") or error("message")
+};
+
+
+var SERVICES = [
+    duckduckgoService,
+    googleService, googleImagesService, youtubeService,
+    mapSearchService, routingService,
+    flightSearchService,
+    wikipediaService,
+    cppdocService];
 
 function findService(name) {
     for (var i in SERVICES) {
