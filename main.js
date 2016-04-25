@@ -1,13 +1,23 @@
 
+function go(url) {
+    return {go: url};
+}
+
+function error(message) {
+    return {error: message};
+}
+
 var duckduckgoService = {
     name: "duckduckgo",
     aliases: ["d"],
     description: "DuckDuckGo Web search",
     helpMessage: "<span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
-    serve: function(serviceArgs) { return "url"; }, // go("url") or error("message")
+    serve: function(serviceArgs) {
+        return go("https://duckduckgo.com/?q=" + encodeURIComponent(serviceArgs));
+    },
     getSuggestions: function(serviceArgs, response) {
-        return response(["tesla model s", "tesla SUV"]);
+//        return response(["tesla model s", "tesla SUV"]);
         $.ajax({
             url: "https://ac.duckduckgo.com/ac",
             dataType: "jsonp",
@@ -33,8 +43,12 @@ var googleService = {
     aliases: ["g"],
     description: "Google Web search",
     helpMessage: "<span class='help-message-input'>search query</span>",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) {
+        return go("https://www.google.com/#q=" + serviceArgs);
+    },
     getSuggestions: function(serviceArgs, response) {
-        return response(["elon musk", "elon musk spacex"]);
+//        return response(["elon musk", "elon musk spacex"]);
         $.ajax({
             url: "https://www.google.com/complete/search?client=firefox",
             dataType: "jsonp",
@@ -54,6 +68,10 @@ var googleImagesService = {
     aliases: ["gi"],
     description: "Google Images search",
     helpMessage: "<span class='help-message-input'>search query</span>",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) {
+        return go("https://www.google.de/search?q=" + encodeURIComponent(serviceArgs) + " &tbm=isch");
+    },
     getSuggestions: function(serviceArgs, response) {
         return response(["flowers", "flower field"]);
     }
@@ -64,8 +82,12 @@ var youtubeService = {
     aliases: ["y"],
     description: "YouTube search",
     helpMessage: "<span class='help-message-input'>search query</span>",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) {
+        return go("https://www.youtube.com/results?search_query=" + encodeURIComponent(serviceArgs));
+    },
     getSuggestions: function(serviceArgs, response) {
-        return response(["manowar", "manowar the sons of odin"]);
+//        return response(["manowar", "manowar the sons of odin"]);
         $.ajax({
             url: "https://clients1.google.com/complete/search?client=youtube&hl=en&ds=yt",
             dataType: "jsonp",
@@ -93,7 +115,9 @@ var mapSearchService = {
     description: "Google Maps search",
     helpMessage: "<span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
-    serve: function(serviceArgs) { return "map"; }, // go("url") or error("message")
+    serve: function(serviceArgs) {
+        return go("https://www.google.com/maps?q=" + encodeURIComponent(serviceArgs));
+    }
 };
 
 var routingService = {
@@ -102,7 +126,18 @@ var routingService = {
     description: "Google Maps routing",
     helpMessage: "<span class='help-message-input'>origin</span> to <span class='help-message-input'>destination</span>",
     favicon: {url: "url", base64: "url to favicon"},
-    serve: function(serviceArgs) { return "route"; }, // go("url") or error("message")
+    serve: function(serviceArgs) {
+        var index = serviceArgs.indexOf(" to ");
+        if (index != -1) {
+            var origin = serviceArgs.substring(0, index);
+            var destination = serviceArgs.substring(index + " to ".length);
+            console.log(origin);
+            console.log(destination);
+            return go("https://www.google.com/maps/dir/" + encodeURIComponent(origin) + "/" +
+                encodeURIComponent(destination));
+        }
+        return error("no to");
+    }
 };
 
 var flightSearchService = {
@@ -111,7 +146,46 @@ var flightSearchService = {
     description: "Flight search on Momondo.ru",
     helpMessage: "<span class='help-message-input'>origin</span> to <span class='help-message-input'>destination</span> on <span class='help-message-input'>departure date</span> [<span class='help-message-input'>back date</span>] [direct]",
     favicon: {url: "url", base64: "url to favicon"},
-    serve: function(serviceArgs) { return "momondo"; }, // go("url") or error("message")
+    serve: function(serviceArgs) {
+        // [from] _departure_ [to] _destination_
+        //     [on] [_month_ _date_] [_month_ _date_]
+        //     [direct]
+        var parsedArgs = /(.*) to (.*) on (.*)/g.exec(serviceArgs);
+        if (parsedArgs == null || parsedArgs.length == 0) {
+            return error("bad args");
+        }
+        var origin = parsedArgs[1];
+        var destination = parsedArgs[2];
+        var queryTail = parsedArgs[3];
+        
+        var onlyDirect = false;
+        var splitByDirect = queryTail.split("direct");
+        if (splitByDirect.length > 1) {
+            onlyDirect = true;
+        }
+        var dates = splitByDirect[0].trim();
+        var splitDates = dates.split(" ");
+
+        var fromDate = null;
+        var backDate = null;
+        var splitDatesLength = splitDates.length;
+        if (splitDatesLength > 3) {
+            // Two dates, do two-way flight.
+            fromDate = parseDate(splitDates);
+            backDate = parseDate(splitDates.slice(splitDatesLength / 2));
+        } else {
+            // One-way flight.
+            fromDate = parseDate(splitDates);
+        }
+        console.log("from: " + fromDate.toSource());
+        console.log("back: " + (backDate ? backDate.toSource() : ""));
+
+        var directText = onlyDirect ? "direct " : "";
+        console.log("You want to have a " + directText + "flight from " + origin + " to " + destination + " on " + dates);
+
+        var args = {origin: origin, destination: destination, fromOn: fromDate, backOn: backDate, direct: onlyDirect};
+        return go(buildMomondoUrl(args));
+    }
 };
 
 
@@ -121,7 +195,27 @@ var wikipediaService = {
     description: "Wikipedia routing",
     helpMessage: "[<span class='help-message-input'>language code</span>] <span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
-    serve: function(serviceArgs) { return "wikipedia"; }, // go("url") or error("message")
+    serve: function(serviceArgs) {
+        // https://ru.wikipedia.org/w/index.php?search=
+
+        // Problem with: w id
+        // Some language codes can collide with regular words: ab, it, simple, ...
+
+        var languageCode = "en";
+        var articleQuery = serviceArgs;
+
+        // Check whether language was specified.
+        var firstWord = serviceArgs.split(" ", 1)[0];
+        if (WIKIPEDIA_LANGUAGES.indexOf(firstWord) != -1) {
+            // Language has been specified.
+            languageCode = firstWord;
+            articleQuery = serviceArgs.substring(languageCode.length + 1);
+        }
+
+        return go("https://" + languageCode +
+            ".wikipedia.org/w/index.php?search=" +
+            encodeURIComponent(articleQuery));
+    }
 };
 
 var cppdocService = {
@@ -130,7 +224,12 @@ var cppdocService = {
     description: "STL documentation search on cplusplus.com",
     helpMessage: "<span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
-    serve: function(serviceArgs) { return "cplusplus"; }, // go("url") or error("message")
+    serve: function(serviceArgs) {
+        if (serviceArgs.startsWith("std::")) {
+            serviceArgs = serviceArgs.substring("std::".length);
+        }
+        return go("http://www.cplusplus.com/search.do?q=" + encodeURIComponent(serviceArgs));
+    }
 };
 
 
@@ -276,13 +375,6 @@ WIKIPEDIA_LANGUAGES = [
 
 
 function processQuery(query) {
-    var isEmpty = function (obj) {
-        return obj.length == 0;
-    }
-    var isNotEmpty = function (obj) {
-        return obj.length != 0;
-    }
-
     var parsedQuery = parseQuery(query);
     var serviceName = parsedQuery.serviceName;
     var serviceArgs = parsedQuery.serviceArgs;
@@ -294,124 +386,20 @@ function processQuery(query) {
 
     console.log(serviceName + " > " + serviceArgs);
 
-    var serviceUrl = null;
-
-
-    if ("duckduckgo".startsWith(serviceName)) {
-        serviceUrl = "https://duckduckgo.com/?q=" + encodeURIComponent(serviceArgs);
-
-    } else if ("google".startsWith(serviceName)) {
-        serviceUrl = "https://www.google.com/#q=" + serviceArgs;
-
-    } else if ("googleimages".startsWith(serviceName) || serviceName == "gi") {
-        serviceUrl = "https://www.google.de/search?q=" + encodeURIComponent(serviceArgs) + " &tbm=isch";
-
-    } else if ("youtube".startsWith(serviceName)) {
-        serviceUrl = "https://www.youtube.com/results?search_query=" + encodeURIComponent(serviceArgs);
-
-    } else if ("map".startsWith(serviceName)) {
-        serviceUrl = "https://www.google.com/maps?q=" + encodeURIComponent(serviceArgs);
-
-    } else if ("route".startsWith(serviceName)) {
-        var index = serviceArgs.indexOf(" to ");
-        if (index != -1) {
-            var origin = serviceArgs.substring(0, index);
-            var destination = serviceArgs.substring(index + " to ".length);
-            console.log(origin);
-            console.log(destination);
-            serviceUrl = "https://www.google.com/maps/dir/" + encodeURIComponent(origin) + "/" +
-                encodeURIComponent(destination);
-        }
-
-    } else if ("flight".startsWith(serviceName)) {
-        console.log("momondo: ");
-        // [from] _departure_ [to] _destination_
-        //     [on] [_month_ _date_] [_month_ _date_]
-        //     [direct]
-        var parsedArgs = /(.*) to (.*) on (.*)/g.exec(serviceArgs);
-        if (parsedArgs == null || parsedArgs.length == 0) {
-            console.log("Error: bad args");
+    var service = findService(serviceName);
+    if (service) {
+        console.log(service.name + " serves " + serviceArgs);
+        var result = service.serve(serviceArgs);
+        console.log(result);
+        if (result.go) {
+            return result.go;
+        } else {
+            console.log("Error: " + result.error);
             return;
         }
-        var origin = parsedArgs[1];
-        var destination = parsedArgs[2];
-        var queryTail = parsedArgs[3];
-        
-        var onlyDirect = false;
-        var splitByDirect = queryTail.split("direct");
-        if (splitByDirect.length > 1) {
-            onlyDirect = true;
-        }
-        var dates = splitByDirect[0].trim();
-        var splitDates = dates.split(" ");
-
-        var fromDate = null;
-        var backDate = null;
-        var splitDatesLength = splitDates.length;
-        if (splitDatesLength > 3) {
-            // Two dates, do two-way flight.
-            fromDate = parseDate(splitDates);
-            backDate = parseDate(splitDates.slice(splitDatesLength / 2));
-        } else {
-            // One-way flight.
-            fromDate = parseDate(splitDates);
-        }
-        console.log("from: " + fromDate.toSource());
-        console.log("back: " + (backDate ? backDate.toSource() : ""));
-
-        var directText = onlyDirect ? "direct " : "";
-        console.log("You want to have a " + directText + "flight from " + origin + " to " + destination + " on " + dates);
-
-        var args = {origin: origin, destination: destination, fromOn: fromDate, backOn: backDate, direct: onlyDirect};
-        serviceUrl = buildMomondoUrl(args);
-
-    } else if ("hotel".startsWith(serviceName)) {
-        console.log("booking: ");
-
-    } else if ("wiki".startsWith(serviceName)) {
-        console.log("wikipedia: ");
-        // https://ru.wikipedia.org/w/index.php?search=
-
-        // Problem with: w id
-        // Some language codes can collide with regular words: ab, it, simple, ...
-
-        var languageCode = "en";
-        var articleQuery = serviceArgs;
-
-        // Check whether language was specified.
-        var firstWord = serviceArgs.split(" ", 1)[0];
-        if (WIKIPEDIA_LANGUAGES.indexOf(firstWord) != -1) {
-            // Language has been specified.
-            languageCode = firstWord;
-            articleQuery = serviceArgs.substring(languageCode.length + 1);
-        }
-
-        serviceUrl = "https://" + languageCode +
-            ".wikipedia.org/w/index.php?search=" +
-            encodeURIComponent(articleQuery);
-
-    } else if ("route".startsWith(serviceName)) {
-        console.log("google maps routing: ");
-
-    } else if ("cppdoc".startsWith(serviceName)) {
-        console.log("cppdoc search: ");
-
-//        var argsArray = serviceArgs.split(" ").filter(isNotEmpty);
-//        serviceUrl = "http://www.cplusplus.com/reference/" + argsArray[0] + "/" + argsArray.join("/");
-        if (serviceArgs.startsWith("std::")) {
-            serviceArgs = serviceArgs.substring("std::".length);
-        }
-
-        serviceUrl = "http://www.cplusplus.com/search.do?q=" + encodeURIComponent(serviceArgs);
-
-    } else {
-        console.log("Error: unknown service");
     }
-    // wiki https://en.wikipedia.org/wiki/
-    // youtube
 
-    console.log(serviceUrl);
-    return serviceUrl;
+    console.log("Warning: no service found with name " + serviceName);
 }
 
 function parseDate(dateArray) {
