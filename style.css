@@ -73,3 +73,8 @@ input {
     text-align: center;
 }
 
+
+.help-message-input {
+    font-style: italic;
+}
+

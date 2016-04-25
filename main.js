@@ -143,42 +143,18 @@ var SERVICES = [
     cppdocService];
 
 function findService(name) {
-    for (var i in SERVICES) {
-        var service = SERVICES[i];
-        if (service.name.startsWith(name)) {
-            return service;
+    if (name) {
+        for (var i in SERVICES) {
+            var service = SERVICES[i];
+            if (service.name.startsWith(name)) {
+                return service;
+            }
         }
     }
 }
 
 
 // ============================================================================
-
-var SERVICE_MANAGER = {
-    services: {
-        "duckduckgo": "<i>search query</i>",
-        "youtube": "<i>search query</i>",
-        "flightsearch": "<i>origin</i> to <i>destination</i> on <i>departure date</i> [<i>back date</i>] [direct]",
-        "route": "<i>origin</i> to <i>destination</i>",
-        "wikimedia": "[<i>language code</i>] <i>search query</i>",
-    },
-    init: function () {
-//        this.services.append('c');
-        console.log(this.services);
-    },
-    findService: function (namePrefix) {
-        console.log(namePrefix);
-        namePrefix = namePrefix.split(" ", 1)[0];
-        if (namePrefix && namePrefix.length > 0) {
-            for (var service in this.services) {
-//                console.log(service);
-                if (service.startsWith(namePrefix)) {
-                    return this.services[service];
-                }
-            }
-        }
-    }
-};
 
 function parseQuery(query) {
     query = query.trimLeft();
@@ -261,8 +237,6 @@ $(document).ready(function() {
 });
 
 function main() {
-    SERVICE_MANAGER.init();
-
     var queryInput = document.getElementById("queryInput");
 
     queryInput.onchange = dynamicHelp;
@@ -283,9 +257,11 @@ function dynamicHelp() {
     var serviceHelp = document.getElementById("service-help");
     var query = queryInput.value;
 
-    var service = SERVICE_MANAGER.findService(query);
-    if (service) {
-        serviceHelp.innerHTML = service;
+    var parsedQuery = parseQuery(query);
+
+    var service = findService(parsedQuery.serviceName);
+    if (service && parsedQuery.serviceArgs != undefined) {
+        serviceHelp.innerHTML = service.helpMessage;
     } else {
         serviceHelp.innerHTML = "";
     }
