@@ -348,6 +348,7 @@ function main() {
         if (event.keyCode == 13) {
             //window.location = processQuery(query);
             var nextUrl = processQuery(query);
+            queryInput.select();
             window.open(nextUrl);
         }
     });
