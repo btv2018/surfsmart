@@ -45,7 +45,7 @@ var googleService = {
     helpMessage: "<span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
     serve: function(serviceArgs) {
-        return go("https://www.google.com/#q=" + serviceArgs);
+        return go("https://www.google.com/search?q=" + encodeURIComponent(serviceArgs));
     },
     getSuggestions: function(serviceArgs, response) {
 //        return response(["elon musk", "elon musk spacex"]);
@@ -225,8 +225,9 @@ var cppdocService = {
     helpMessage: "<span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
     serve: function(serviceArgs) {
-        if (serviceArgs.startsWith("std::")) {
-            serviceArgs = serviceArgs.substring("std::".length);
+        var stdPrefix = "std::";
+        if (serviceArgs.startsWith(stdPrefix)) {
+            serviceArgs = serviceArgs.substring(stdPrefix.length);
         }
         return go("http://www.cplusplus.com/search.do?q=" + encodeURIComponent(serviceArgs));
     }
@@ -390,7 +391,6 @@ function processQuery(query) {
     if (service) {
         console.log(service.name + " serves " + serviceArgs);
         var result = service.serve(serviceArgs);
-        console.log(result);
         if (result.go) {
             return result.go;
         } else {
