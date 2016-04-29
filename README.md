@@ -22,8 +22,9 @@
  - dynamicially generate help overview
  + add autocomplete for service names
  - add autocomplete for service name aliases
- - parsing
-  - parse dates more acurate: April 26, 26.04, 26/04
-  - handle year
+ + parsing
+  + parse dates more acurate: April 26, 26.04, 26/04
+  + handle year
+ - add language support for parsing dates
  - add language support for services
 

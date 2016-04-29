@@ -144,7 +144,7 @@ var flightSearchService = {
     name: "flight",
     aliases: ["f"],
     description: "Flight search on Momondo.ru",
-    helpMessage: "<span class='help-message-input'>origin</span> to <span class='help-message-input'>destination</span> on <span class='help-message-input'>departure date</span> [<span class='help-message-input'>back date</span>] [direct]",
+    helpMessage: "<span class='help-message-input'>origin</span> to <span class='help-message-input'>destination</span> on <span class='help-message-input'>departure date</span> [, <span class='help-message-input'>back date</span>] [direct]",
     favicon: {url: "url", base64: "url to favicon"},
     serve: function(serviceArgs) {
         // [from] _departure_ [to] _destination_
@@ -163,22 +163,23 @@ var flightSearchService = {
         if (splitByDirect.length > 1) {
             onlyDirect = true;
         }
-        var dates = splitByDirect[0].trim();
-        var splitDates = dates.split(" ");
 
+        // Parse dates.
         var fromDate = null;
         var backDate = null;
-        var splitDatesLength = splitDates.length;
-        if (splitDatesLength > 3) {
-            // Two dates, do two-way flight.
-            fromDate = parseDate(splitDates);
-            backDate = parseDate(splitDates.slice(splitDatesLength / 2));
-        } else {
+
+        var dates = splitByDirect[0].trim();
+        var splitByComma = dates.split(",");
+        if (splitByComma.length == 1) {
             // One-way flight.
-            fromDate = parseDate(splitDates);
+            fromDate = parseDate(splitByComma[0].trim());
+        } else {
+            // Two dates, do two-way flight.
+            fromDate = parseDate(splitByComma[0].trim());
+            backDate = parseDate(splitByComma[1].trim());
         }
-        console.log("from: " + fromDate.toSource());
-        console.log("back: " + (backDate ? backDate.toSource() : ""));
+        console.log("from: " + fromDate.toString());
+        console.log("back: " + (backDate ? backDate.toString() : ""));
 
         var directText = onlyDirect ? "direct " : "";
         console.log("You want to have a " + directText + "flight from " + origin + " to " + destination + " on " + dates);
@@ -403,25 +404,8 @@ function processQuery(query) {
     console.log("Warning: no service found with name " + serviceName);
 }
 
-function parseDate(dateArray) {
-    var MONTHS = {
-        jan: 0,
-        feb: 1,
-        mar: 2,
-        apr: 3,
-        may: 4,
-        jun: 5,
-        jul: 6,
-        aug: 7,
-        sep: 8,
-        oct: 9,
-        nov: 10,
-        dec: 11
-    };
-    if (dateArray.length != 2) {
-        console.log("Bad date");
-    }
-    return {year: 2016, month: MONTHS[dateArray[0]], day: dateArray[1]};
+function parseDate(dateString) {
+    return Date.parse(dateString);
 }
 
 
@@ -448,7 +432,7 @@ function buildMomondoUrl(args) {
 }
 
 function formatDateToBase(date) {
-    return date.day + "-" + (date.month + 1)+ "-" + date.year;
+    return date.toString("dd-MM-yyyy");
 }
 
 
