@@ -12,7 +12,7 @@ var duckduckgoService = {
     aliases: ["d"],
     description: "DuckDuckGo Web search",
     helpMessage: "<span class='help-message-input'>search query</span>",
-    favicon: {url: "url", base64: "url to favicon"},
+    favicon: {url: "https://duckduckgo.com/favicon.ico", base64: "url to favicon"},
     serve: function(serviceArgs) {
         return go("https://duckduckgo.com/?q=" + encodeURIComponent(serviceArgs));
     },
@@ -254,7 +254,6 @@ function findService(name) {
     }
 }
 
-
 // ============================================================================
 
 function parseQuery(query) {
@@ -338,6 +337,20 @@ $(document).ready(function() {
 });
 
 function main() {
+    var helpTable = $("#help-table");
+    for (var i in SERVICES) {
+        var service = SERVICES[i];
+        var tr = $.parseHTML(
+            "<tr>" +
+//                "<td><img src='" + service.favicon.url + "'/></td>" +
+                "<td class='service-name'>" + service.name + "</td>" +
+                "<td>" + service.aliases.join(", ") + "</td>" +
+                "<td>" + service.description + "</td>" +
+            "</tr>");
+        helpTable.append(tr);
+    }
+    $("#help-table-fallback").hide();
+
     var queryInput = document.getElementById("queryInput");
 
     queryInput.onchange = dynamicHelp;
