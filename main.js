@@ -186,6 +186,74 @@ var flightSearchService = {
 
         var args = {origin: origin, destination: destination, fromOn: fromDate, backOn: backDate, direct: onlyDirect};
         return go(buildMomondoUrl(args));
+    },
+    getSuggestions: function(serviceArgs, response) {
+        var AIRPORT_CODES = {
+            muc: ["Munich", "Munchen", "Muenchen", "München"],
+            ber: ["Berlin all airports"],
+            txl: ["Berlin Tegel", "Tegel"],
+            sxf: ["Berlin Schönefeld", "Schönefeld"],
+        };
+
+        var buildSuggestionString = function(airportCode) {
+            return airportCode.toUpperCase() + " — " + AIRPORT_CODES[airportCode][0];
+        }
+
+        var findAirportSuggestions = function(userInput) {
+            userInput = userInput.toLowerCase();
+            var suggestions = [];
+            for (var code in AIRPORT_CODES) {
+                if (code.startsWith(userInput)) {
+                    suggestions.push(buildSuggestionString(code));
+                    continue;
+                }
+                for (var i in AIRPORT_CODES[code]) {
+                    var airportName = AIRPORT_CODES[code][i];
+                    if (airportName.toLowerCase().startsWith(userInput)) {
+                        suggestions.push(buildSuggestionString(code));
+                        break;
+                    }
+                }
+            }
+            return suggestions;
+        }
+
+        // TODO: Make the cursor position as an argument.
+        var queryInput = $("#queryInput");
+        // TODO: Get the cursor position.
+        var cursorPosition = 1;
+        
+        var regexpToOn = /(.*) to (.*) on (.*)/g;
+        var regexpTo = /(.*) to (.*)/g;
+
+        parsedArgsForToOn = regexpToOn.exec(serviceArgs);
+        parsedArgsForTo   = regexpTo.exec(serviceArgs);
+
+        var suggestions = [];
+        if (parsedArgsForToOn) {
+            // Complete request: xxx to xxx on xxx
+            console.log("Complete request");
+        } else if (parsedArgsForTo) {
+            // Two code request: xxx to xxx
+            console.log("The second code");
+            var userInput = parsedArgsForTo[2];
+            var codeSuggestions = findAirportSuggestions(userInput);
+            for (var i in codeSuggestions) {
+                var code = codeSuggestions[i];
+                suggestions.push({label: code, value: parsedArgsForTo[1] + " to " + code.substring(0, 3)});
+            }
+        } else {
+            // The first code: xxx
+            console.log("The first code");
+            var userInput = serviceArgs;
+            var codeSuggestions = findAirportSuggestions(userInput);
+            for (var i in codeSuggestions) {
+                var code = codeSuggestions[i];
+                suggestions.push({label: code, value: code.substring(0, 3)});
+            }
+        }
+        // TODO: Return default airports.
+        return response(suggestions);
     }
 };
 
@@ -264,7 +332,7 @@ function parseQuery(query) {
     var serviceArgs = undefined;
     if (firstSpaceIndex > 0) {
         serviceName = query.substring(0, firstSpaceIndex);
-        serviceArgs = query.substring(firstSpaceIndex + 1).trim();
+        serviceArgs = query.substring(firstSpaceIndex + 1).trimLeft();
     }
     return {serviceName: serviceName, serviceArgs: serviceArgs};
 }
@@ -317,9 +385,9 @@ $(document).ready(function() {
             var parsedQuery = parseQuery(term);
             var serviceName = parsedQuery.serviceName;
             var serviceArgs = parsedQuery.serviceArgs;
-            if (!serviceArgs) {
-                return;
-            }
+//            if (!serviceArgs) {
+//                return;
+//            }
             queryInput.val(serviceName + " " + ui.item.value);
             return false;
         },
