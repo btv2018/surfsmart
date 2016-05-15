@@ -1,5 +1,5 @@
-# SLI for Me
-## Smart Line Interface for Me
+# SurfSmart
+## Smart Line Interface for Web
 
 ## TODO
  - handle clients without javascript
@@ -27,4 +27,20 @@
   + handle year
  - add language support for parsing dates
  - add language support for services
+
+ - **Feature**: make the service as an open search
+  - setup nodejs
+  - add go method for redirecting and error heandling
+  - add suggest method
+  - add open search markup for the input field
+  - deploy the service
+ 
+ - **Feature**: fast suggestions
+
+## Futher Ideas
+ - add an option to add `@specific_service_name` at the end of service name, such that the user can specify what service to use to accomplish his request
+   for example `flight` request will be served with default service, but `flight@kayak` request will be served with Kayak.com service.
+
+## Known Issues
+ - 12/04 date parsed as Dec 04, but it might be parsed as Apr 12
 
