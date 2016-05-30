@@ -25,6 +25,7 @@
   + parse dates more acurate: April 26, 26.04, 26/04
   + handle year
  - insert at the beginning of every suggestion the name of the serivece (return an object rather then string like for flight suggestions)
+ - add INSTALL.sh script to run scripts/airport-codes-converter.py and other scripts to make the applicaiton ready to run
 
 ## Features
  - **The service as an open search**
