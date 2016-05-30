@@ -188,31 +188,31 @@ var flightSearchService = {
         return go(buildMomondoUrl(args));
     },
     getSuggestions: function(serviceArgs, response) {
-        var AIRPORT_CODES = {
-            muc: ["Munich", "Munchen", "Muenchen", "München"],
-            ber: ["Berlin all airports"],
-            txl: ["Berlin Tegel", "Tegel"],
-            sxf: ["Berlin Schönefeld", "Schönefeld"],
-        };
+        var AIRPORT_CODES = AIRPORTS;
 
-        var buildSuggestionString = function(airportCode) {
-            return airportCode.toUpperCase() + " — " + AIRPORT_CODES[airportCode][0];
+        var buildSuggestionString = function(airport) {
+            return airport.code + " — " + airport.name + ", " + airport.city + ", " + airport.country;
         }
 
         var findAirportSuggestions = function(userInput) {
+            if (!userInput) {
+                // TODO: Return default list.
+                return [buildSuggestionString(AIRPORTS[0]), buildSuggestionString(AIRPORTS[1])];
+            }
+
             userInput = userInput.toLowerCase();
+            // TODO: Remove diacritic from user input.
+            // TODO: Sort suggestions by importance.
+            // TODO: Return no more than 10 results (for efficiency).
             var suggestions = [];
-            for (var code in AIRPORT_CODES) {
-                if (code.startsWith(userInput)) {
-                    suggestions.push(buildSuggestionString(code));
-                    continue;
-                }
-                for (var i in AIRPORT_CODES[code]) {
-                    var airportName = AIRPORT_CODES[code][i];
-                    if (airportName.toLowerCase().startsWith(userInput)) {
-                        suggestions.push(buildSuggestionString(code));
-                        break;
-                    }
+            for (var index in AIRPORT_CODES) {
+                var airport = AIRPORT_CODES[index];
+                if (airport.code.toLowerCase().startsWith(userInput)) {
+                    suggestions.push(buildSuggestionString(airport));
+                } else if (airport.city.toLowerCase().startsWith(userInput)) {
+                    suggestions.push(buildSuggestionString(airport));
+                } else if (airport.name.toLowerCase().startsWith(userInput)) {
+                    suggestions.push(buildSuggestionString(airport));
                 }
             }
             return suggestions;

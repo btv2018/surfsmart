@@ -40,8 +40,10 @@
  - **Suggestions for airport codes**
   + add basic suggestions (undependent from cursor position)
   - make suggestions dependent on cursor position
-  - make a dictionary of airport codes, cities
+  + make a dictionary of airport codes, cities
   - trim user input
+  - sort airports by importance
+  - remove pseudo airports (i.e. ZMU)
 
  - **Language support**
   - add language support for parsing dates

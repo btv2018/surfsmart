@@ -19,9 +19,10 @@ def convert(in_file_name, out_file_name):
                 airports.append(airport)
         print len(airports), "airports found."
         with open(out_file_name, 'w') as out_file:
-            json_dump = json.dumps(airports)
+            json_dump = json.dumps(airports, separators=(',', ':'))
+            out_file.write("AIRPORTS=")
             out_file.write(json_dump)
 
 if __name__ == '__main__':
-    convert('external/data/airports.dat', 'airports.json')
+    convert('external/data/airports.dat', 'airports.js')
 
