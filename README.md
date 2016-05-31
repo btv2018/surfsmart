@@ -6,10 +6,11 @@
   - news
   - weather we, python docs pydoc
   - translator (https://translate.google.com/#auto/ru/marker)
-   - with languages as **short arguments**: `tr/en/ru smart` en -> ru, `tr//ru Deutschland` auto -> ru, `tr maison` auto -> local language
+   + basic with default language arguments
+   - with languages arguments as **short arguments**: `tr/en/ru smart` en -> ru, `tr//ru Deutschland` auto -> ru, `tr maison` auto -> local language
    - suggestions for languages
   - wikipedia
-   - add language as a **short argument** `w London` local language, `w/ru google` russian language
+   - add language argument as a **short argument** `w London` local language, `w/ru google` russian language
    - suggestions for languages
    - suggestions for query
  - suggestions

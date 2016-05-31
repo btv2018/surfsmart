@@ -287,6 +287,17 @@ var wikipediaService = {
     }
 };
 
+var translateService = {
+    name: "translate",
+    aliases: ["t"],
+    description: "Translate on Google Translator",
+    helpMessage: "<span class='help-message-input'>query</span>",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) {
+        return go("https://translate.google.com/#auto/en/" + encodeURIComponent(serviceArgs));
+    }
+};
+
 var cppdocService = {
     name: "cppdoc",
     aliases: ["c"],
@@ -309,6 +320,7 @@ var SERVICES = [
     mapSearchService, routingService,
     flightSearchService,
     wikipediaService,
+    translateService,
     cppdocService];
 
 function findService(name) {
