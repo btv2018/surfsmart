@@ -7,6 +7,13 @@ function error(message) {
     return {error: message};
 }
 
+// List of all languages from https://meta.wikimedia.org/wiki/Table_of_Wikimedia_projects
+// grep "<\!\-\-" -v | sed 's/.*2=\([a-z\-]*\)|.*/\1/'
+WIKIPEDIA_LANGUAGES = [
+'aa', 'ab', 'ace', 'ady', 'af', 'ak', 'als', 'am', 'an', 'ang', 'anp', 'ar', 'arc', 'arz', 'as', 'ast', 'av', 'ay', 'az', 'azb', 'ba', 'bar', 'bat-smg', 'bcl', 'be', 'be-x-old', 'bg', 'bh', 'bi', 'bjn', 'bm', 'bn', 'bo', 'bpy', 'br', 'bs', 'bug', 'bxr', 'ca', 'cbk-zam', 'cdo', 'ce', 'ceb', 'ch', 'cho', 'chr', 'chy', 'ckb', 'co', 'cr', 'crh', 'cs', 'csb', 'cu', 'cv', 'cy', 'da', 'de', 'diq', 'dsb', 'dv', 'dz', 'ee', 'el', 'eml', 'en', 'eo', 'es', 'et', 'eu', 'ext', 'fa', 'ff', 'fi', 'fiu-vro', 'fj', 'fo', 'fr', 'frp', 'frr', 'fur', 'fy', 'ga', 'gag', 'gan', 'gd', 'gl', 'glk', 'gn', 'gom', 'got', 'gu', 'gv', 'ha', 'hak', 'haw', 'he', 'hi', 'hif', 'ho', 'hr', 'hsb', 'ht', 'hu', 'hy', 'hz', 'ia', 'id', 'ie', 'ig', 'ii', 'ik', 'ilo', 'io', 'is', 'it', 'iu', 'ja', 'jbo', 'jv', 'ka', 'kaa', 'kab', 'kbd', 'kg', 'ki', 'kj', 'kk', 'kl', 'km', 'kn', 'ko', 'koi', 'kr', 'krc', 'ks', 'ksh', 'ku', 'kv', 'kw', 'ky', 'la', 'lad', 'lb', 'lbe', 'lez', 'lg', 'li', 'lij', 'lmo', 'ln', 'lo', 'lrc', 'lt', 'ltg', 'lv', 'mai', 'map-bms', 'mdf', 'mg', 'mh', 'mhr', 'mi', 'min', 'mk', 'ml', 'mn', 'mo', 'mr', 'mrj', 'ms', 'mt', 'mus', 'mwl', 'my', 'myv', 'mzn', 'na', 'nah', 'nap', 'nds', 'nds-nl', 'ne', 'new', 'ng', 'nl', 'nn', 'no', 'nov', 'nrm', 'nso', 'nv', 'ny', 'oc', 'om', 'or', 'os', 'pa', 'pag', 'pam', 'pap', 'pcd', 'pdc', 'pfl', 'pi', 'pih', 'pl', 'pms', 'pnb', 'pnt', 'ps', 'pt', 'qu', 'rm', 'rmy', 'rn', 'ro', 'roa-rup', 'roa-tara', 'ru', 'rue', 'rw', 'sa', 'sah', 'sc', 'scn', 'sco', 'sd', 'se', 'sg', 'sh', 'si', 'simple', 'sk', 'sl', 'sm', 'sn', 'so', 'sq', 'sr', 'srn', 'ss', 'st', 'stq', 'su', 'sv', 'sw', 'szl', 'ta', 'te', 'tet', 'tg', 'th', 'ti', 'tk', 'tl', 'tn', 'to', 'tpi', 'tr', 'ts', 'tt', 'tum', 'tw', 'ty', 'tyv', 'udm', 'ug', 'uk', 'ur', 'uz', 've', 'vec', 'vep', 'vi', 'vls', 'vo', 'wa', 'war', 'wo', 'wuu', 'xal', 'xh', 'xmf', 'yi', 'yo', 'za', 'zea', 'zh', 'zh-classical', 'zh-min-nan', 'zh-yue', 'zu'
+];
+
+
 var duckduckgoService = {
     name: "duckduckgo",
     aliases: ["d"],
@@ -287,14 +294,29 @@ var wikipediaService = {
     }
 };
 
+var fromLangShortArgument = {
+  name: "from_language",
+  defaultValue: 'auto',
+  values: ['auto', 'en','ru','de', 'fr', 'es'],
+};
+var toLangShortArgument = {
+  name: "to_language",
+  defaultValue: 'ru',
+  values: ['en','ru','de', 'fr', 'es'],
+};
+
 var translateService = {
     name: "translate",
     aliases: ["t"],
+    shortArgs: [fromLangShortArgument, toLangShortArgument],
     description: "Translate on Google Translator",
-    helpMessage: "<span class='help-message-input'>query</span>",
+    helpMessage: "[/from_language[/to_language]] <span class='help-message-input'>query</span>",
     favicon: {url: "url", base64: "url to favicon"},
-    serve: function(serviceArgs) {
+    serve: function(serviceArgs, shortArguments) {
         return go("https://translate.google.com/#auto/en/" + encodeURIComponent(serviceArgs));
+//        console.log(shortArguments);
+//        return go("https://translate.google.com/#" + shortArguments[0] +
+//            "/" + shortArguments[1] + "/" + encodeURIComponent(serviceArgs));
     }
 };
 
@@ -341,30 +363,80 @@ function parseQuery(query) {
     var firstSpaceIndex = query.indexOf(" ");
 
     var serviceName = query;
+    var shortArgs = undefined;
     var serviceArgs = undefined;
     if (firstSpaceIndex > 0) {
         serviceName = query.substring(0, firstSpaceIndex);
         serviceArgs = query.substring(firstSpaceIndex + 1).trimLeft();
     }
-    return {serviceName: serviceName, serviceArgs: serviceArgs};
+
+//    var firstSlashIndex = serviceName.indexOf("/");
+//    if (firstSlashIndex > 0) {
+//        // There are some short arguments.
+//        shortArgs = serviceName.split("/");
+//        serviceName = shortArgs[0];
+//        if (shortArgs.length > 1) {
+//            shortArgs = shortArgs.slice(1);
+//        }
+//    }
+    return {serviceName: serviceName, shortArgs: shortArgs, serviceArgs: serviceArgs};
 }
 
 
 function autocomplete(query, response) {
     var parsedQuery = parseQuery(query);
     var serviceName = parsedQuery.serviceName;
+    var shortArgs = parsedQuery.shortArgs;
     var serviceArgs = parsedQuery.serviceArgs;
 
     if (serviceArgs === undefined) {
-        // No service arguments. Show service name suggestions.
-        var serviceNameSuggestions = [];
-        for (var i in SERVICES) {
-            var service = SERVICES[i];
-            if (service.name.startsWith(serviceName)) {
-                serviceNameSuggestions.push(service.name);
+        // No service arguments.
+        if (shortArgs) {
+//            // Show suggestions for short argument.
+//            var service = findService(serviceName);
+//            if (service) {
+//                console.log("Service " + service.name + " found");
+//                console.log("Searching seggestions for short args");
+//                var shortArgsNumber = shortArgs.length;
+//                console.log("Provided short arguments: " + shortArgs);
+//
+//                // var shortArg = service.shortArguments[shortArgs.length - 1];
+//
+//                var valuePrefix = 'tr/' + shortArgs.slice(0, shortArgsNumber - 1).join('/');
+//                if (shortArgsNumber > 1) {
+//                    valuePrefix += '/';
+//                }
+//                var valueSufix = shortArgs.slice(shortArgsNumber, service.shortArgs.length).join('/');
+//
+//                var suggestions = [];
+//                var shortArgSuggestions = service.shortArgs[shortArgsNumber - 1].values;
+//                for (var index in shortArgSuggestions) {
+//                    var shortArg = shortArgSuggestions[index];
+//                    var value = valuePrefix + shortArg + valueSufix;
+//                    if (serviceArgs) {
+//                        value += ' ' + serviceArgs;
+//                    }
+//                    suggestions.push({label: shortArg, value: value});
+//                }
+//
+//                console.log(suggestions);
+//                console.log(suggestions[0]);
+//
+//                response(suggestions);
+//                return;
+//            }
+        } else {
+            // Show service name suggestions.
+            var serviceNameSuggestions = [];
+            for (var i in SERVICES) {
+                var service = SERVICES[i];
+                if (service.name.startsWith(serviceName)) {
+                    serviceNameSuggestions.push(service.name);
+                }
             }
+            response(serviceNameSuggestions);
         }
-        response(serviceNameSuggestions);
+
         return;
     }
 
@@ -373,7 +445,26 @@ function autocomplete(query, response) {
         console.log("Service " + service.name + " found");
         if (service.getSuggestions) {
             console.log("Requesting suggestions for '" + serviceArgs + "'");
-            service.getSuggestions(serviceArgs, response);
+            
+            var responseWrapper = function(response) {
+                return function(suggestions) {
+                    if (suggestions.length > 0 && suggestions[0].hasOwnProperty("label")) {
+                        // Suggestions are objects with labels and values.
+                        for (var index in suggestions) {
+                            suggestions[index].value = serviceName + " " + suggestions[index].value;
+                        }
+                    } else {
+                        // Suggestions are raw objects.
+                        for (var index in suggestions) {
+                            var label = suggestions[index];
+                            var value = serviceName + " " + label;
+                            suggestions[index] = {label: label, value: value};
+                        }
+                    }
+                    response(suggestions);
+                };
+            };
+            service.getSuggestions(serviceArgs, responseWrapper(response));
             return;
         }
     }
@@ -392,17 +483,6 @@ $(document).ready(function() {
             autocomplete(request.term, response);
         },
         minLength: 0,
-        focus: function(event, ui) {
-            var term = queryInput.val();
-            var parsedQuery = parseQuery(term);
-            var serviceName = parsedQuery.serviceName;
-            var serviceArgs = parsedQuery.serviceArgs;
-//            if (!serviceArgs) {
-//                return;
-//            }
-            queryInput.val(serviceName + " " + ui.item.value);
-            return false;
-        },
         select: function(event, ui) {
             return false;
         },
@@ -463,16 +543,11 @@ function dynamicHelp() {
 }
 
 
-// List of all languages from https://meta.wikimedia.org/wiki/Table_of_Wikimedia_projects
-// grep "<\!\-\-" -v | sed 's/.*2=\([a-z\-]*\)|.*/\1/'
-WIKIPEDIA_LANGUAGES = [
-'aa', 'ab', 'ace', 'ady', 'af', 'ak', 'als', 'am', 'an', 'ang', 'anp', 'ar', 'arc', 'arz', 'as', 'ast', 'av', 'ay', 'az', 'azb', 'ba', 'bar', 'bat-smg', 'bcl', 'be', 'be-x-old', 'bg', 'bh', 'bi', 'bjn', 'bm', 'bn', 'bo', 'bpy', 'br', 'bs', 'bug', 'bxr', 'ca', 'cbk-zam', 'cdo', 'ce', 'ceb', 'ch', 'cho', 'chr', 'chy', 'ckb', 'co', 'cr', 'crh', 'cs', 'csb', 'cu', 'cv', 'cy', 'da', 'de', 'diq', 'dsb', 'dv', 'dz', 'ee', 'el', 'eml', 'en', 'eo', 'es', 'et', 'eu', 'ext', 'fa', 'ff', 'fi', 'fiu-vro', 'fj', 'fo', 'fr', 'frp', 'frr', 'fur', 'fy', 'ga', 'gag', 'gan', 'gd', 'gl', 'glk', 'gn', 'gom', 'got', 'gu', 'gv', 'ha', 'hak', 'haw', 'he', 'hi', 'hif', 'ho', 'hr', 'hsb', 'ht', 'hu', 'hy', 'hz', 'ia', 'id', 'ie', 'ig', 'ii', 'ik', 'ilo', 'io', 'is', 'it', 'iu', 'ja', 'jbo', 'jv', 'ka', 'kaa', 'kab', 'kbd', 'kg', 'ki', 'kj', 'kk', 'kl', 'km', 'kn', 'ko', 'koi', 'kr', 'krc', 'ks', 'ksh', 'ku', 'kv', 'kw', 'ky', 'la', 'lad', 'lb', 'lbe', 'lez', 'lg', 'li', 'lij', 'lmo', 'ln', 'lo', 'lrc', 'lt', 'ltg', 'lv', 'mai', 'map-bms', 'mdf', 'mg', 'mh', 'mhr', 'mi', 'min', 'mk', 'ml', 'mn', 'mo', 'mr', 'mrj', 'ms', 'mt', 'mus', 'mwl', 'my', 'myv', 'mzn', 'na', 'nah', 'nap', 'nds', 'nds-nl', 'ne', 'new', 'ng', 'nl', 'nn', 'no', 'nov', 'nrm', 'nso', 'nv', 'ny', 'oc', 'om', 'or', 'os', 'pa', 'pag', 'pam', 'pap', 'pcd', 'pdc', 'pfl', 'pi', 'pih', 'pl', 'pms', 'pnb', 'pnt', 'ps', 'pt', 'qu', 'rm', 'rmy', 'rn', 'ro', 'roa-rup', 'roa-tara', 'ru', 'rue', 'rw', 'sa', 'sah', 'sc', 'scn', 'sco', 'sd', 'se', 'sg', 'sh', 'si', 'simple', 'sk', 'sl', 'sm', 'sn', 'so', 'sq', 'sr', 'srn', 'ss', 'st', 'stq', 'su', 'sv', 'sw', 'szl', 'ta', 'te', 'tet', 'tg', 'th', 'ti', 'tk', 'tl', 'tn', 'to', 'tpi', 'tr', 'ts', 'tt', 'tum', 'tw', 'ty', 'tyv', 'udm', 'ug', 'uk', 'ur', 'uz', 've', 'vec', 'vep', 'vi', 'vls', 'vo', 'wa', 'war', 'wo', 'wuu', 'xal', 'xh', 'xmf', 'yi', 'yo', 'za', 'zea', 'zh', 'zh-classical', 'zh-min-nan', 'zh-yue', 'zu'
-];
-
 
 function processQuery(query) {
     var parsedQuery = parseQuery(query);
     var serviceName = parsedQuery.serviceName;
+    var shortArgs = parsedQuery.shortArgs;
     var serviceArgs = parsedQuery.serviceArgs;
 
     if (!serviceArgs) {
@@ -484,8 +559,16 @@ function processQuery(query) {
 
     var service = findService(serviceName);
     if (service) {
-        console.log(service.name + " serves " + serviceArgs);
-        var result = service.serve(serviceArgs);
+        console.log(service.name + ' ' + shortArgs + " serves " + serviceArgs);
+        
+//        for (var index in service.shortArgs) {
+//            if (index >= shortArgs.length) {
+//                shortArgs.push(service.shortArgs[index].defaultValue);
+//            } else if (!shortArgs[index]) {
+//                shortArgs[index] = service.shortArgs[index].defaultValue;
+//            }
+//        }
+        var result = service.serve(serviceArgs, shortArgs);
         if (result.go) {
             return result.go;
         } else {
