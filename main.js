@@ -224,11 +224,6 @@ var flightSearchService = {
             }
             return suggestions;
         }
-
-        // TODO: Make the cursor position as an argument.
-        var queryInput = $("#queryInput");
-        // TODO: Get the cursor position.
-        var cursorPosition = 1;
         
         var regexpToOn = /(.*) to (.*) on (.*)/g;
         var regexpTo = /(.*) to (.*)/g;
@@ -265,9 +260,14 @@ var flightSearchService = {
 };
 
 
+var wikipediaLangShortArgument = {
+  defaultValue: 'en',
+  values: WIKIPEDIA_LANGUAGES,
+};
 var wikipediaService = {
     name: "wikipedia",
     aliases: ["w"],
+    shortArgs: [wikipediaLangShortArgument],
     description: "Wikipedia routing",
     helpMessage: "[<span class='help-message-input'>language code</span>] <span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
@@ -370,15 +370,15 @@ function parseQuery(query) {
         serviceArgs = query.substring(firstSpaceIndex + 1).trimLeft();
     }
 
-//    var firstSlashIndex = serviceName.indexOf("/");
-//    if (firstSlashIndex > 0) {
-//        // There are some short arguments.
-//        shortArgs = serviceName.split("/");
-//        serviceName = shortArgs[0];
-//        if (shortArgs.length > 1) {
-//            shortArgs = shortArgs.slice(1);
-//        }
-//    }
+    var firstSlashIndex = serviceName.indexOf("/");
+    if (firstSlashIndex > 0) {
+        // There are some short arguments.
+        shortArgs = serviceName.split("/");
+        serviceName = shortArgs[0];
+        if (shortArgs.length > 1) {
+            shortArgs = shortArgs.slice(1);
+        }
+    }
     return {serviceName: serviceName, shortArgs: shortArgs, serviceArgs: serviceArgs};
 }
 
@@ -389,83 +389,88 @@ function autocomplete(query, response) {
     var shortArgs = parsedQuery.shortArgs;
     var serviceArgs = parsedQuery.serviceArgs;
 
-    if (serviceArgs === undefined) {
-        // No service arguments.
-        if (shortArgs) {
-//            // Show suggestions for short argument.
-//            var service = findService(serviceName);
-//            if (service) {
-//                console.log("Service " + service.name + " found");
-//                console.log("Searching seggestions for short args");
-//                var shortArgsNumber = shortArgs.length;
-//                console.log("Provided short arguments: " + shortArgs);
-//
-//                // var shortArg = service.shortArguments[shortArgs.length - 1];
-//
-//                var valuePrefix = 'tr/' + shortArgs.slice(0, shortArgsNumber - 1).join('/');
-//                if (shortArgsNumber > 1) {
-//                    valuePrefix += '/';
-//                }
-//                var valueSufix = shortArgs.slice(shortArgsNumber, service.shortArgs.length).join('/');
-//
-//                var suggestions = [];
-//                var shortArgSuggestions = service.shortArgs[shortArgsNumber - 1].values;
-//                for (var index in shortArgSuggestions) {
-//                    var shortArg = shortArgSuggestions[index];
-//                    var value = valuePrefix + shortArg + valueSufix;
-//                    if (serviceArgs) {
-//                        value += ' ' + serviceArgs;
-//                    }
-//                    suggestions.push({label: shortArg, value: value});
-//                }
-//
-//                console.log(suggestions);
-//                console.log(suggestions[0]);
-//
-//                response(suggestions);
-//                return;
-//            }
-        } else {
-            // Show service name suggestions.
-            var serviceNameSuggestions = [];
-            for (var i in SERVICES) {
-                var service = SERVICES[i];
-                if (service.name.startsWith(serviceName)) {
-                    serviceNameSuggestions.push(service.name);
+    if (serviceArgs === undefined && shortArgs === undefined) {
+        // Show service name suggestions.
+        var serviceNameSuggestions = [];
+        for (var i in SERVICES) {
+            var service = SERVICES[i];
+            if (service.name.startsWith(serviceName)) {
+                serviceNameSuggestions.push(service.name);
+            }
+        }
+        response(serviceNameSuggestions);
+        return;
+
+    } else if (serviceArgs === undefined && shortArgs && shortArgs.length != 0) {
+        // Show suggestions for short argument.
+        var service = findService(serviceName);
+        if (service) {
+            console.log("Service " + service.name + " found");
+            console.log("Provided short arguments: " + shortArgs);
+            var shortArgsNumber = shortArgs.length;
+            var providedShortArg = shortArgs[shortArgsNumber - 1];
+            console.log("Searching seggestions for short arg number " + (shortArgsNumber - 1));
+
+            // var shortArg = service.shortArguments[shortArgs.length - 1];
+
+            var valuePrefix = 'tr/' + shortArgs.slice(0, shortArgsNumber - 1).join('/');
+            if (shortArgsNumber > 1) {
+                valuePrefix += '/';
+            }
+            var valueSufix = shortArgs.slice(shortArgsNumber, service.shortArgs.length).join('/');
+
+            if (shortArgsNumber > service.shortArgs.length) {
+                // No possible suggestions. Empty array is returned to close previous list.
+                response([]);
+                return;
+            }
+
+            var suggestions = [];
+            var shortArgSuggestions = service.shortArgs[shortArgsNumber - 1].values;
+            for (var index in shortArgSuggestions) {
+                var shortArg = shortArgSuggestions[index];
+                if (shortArg.startsWith(providedShortArg)) {
+                    var value = valuePrefix + shortArg + valueSufix;
+                    if (serviceArgs) {
+                        value += ' ' + serviceArgs;
+                    }
+                    suggestions.push({label: shortArg, value: value});
                 }
             }
-            response(serviceNameSuggestions);
+
+            response(suggestions);
+            return;
         }
 
-        return;
-    }
-
-    var service = findService(serviceName);
-    if (service) {
-        console.log("Service " + service.name + " found");
-        if (service.getSuggestions) {
-            console.log("Requesting suggestions for '" + serviceArgs + "'");
-            
-            var responseWrapper = function(response) {
-                return function(suggestions) {
-                    if (suggestions.length > 0 && suggestions[0].hasOwnProperty("label")) {
-                        // Suggestions are objects with labels and values.
-                        for (var index in suggestions) {
-                            suggestions[index].value = serviceName + " " + suggestions[index].value;
+    } else if (serviceArgs !== undefined) {
+        var service = findService(serviceName);
+        if (service) {
+            console.log("Service " + service.name + " found");
+            if (service.getSuggestions) {
+                console.log("Requesting suggestions for '" + serviceArgs + "'");
+                
+                var responseWrapper = function(response) {
+                    return function(suggestions) {
+                        if (suggestions.length > 0 && suggestions[0].hasOwnProperty("label")) {
+                            // Suggestions are objects with labels and values.
+                            for (var index in suggestions) {
+                                suggestions[index].value = serviceName + " " + suggestions[index].value;
+                            }
+                        } else {
+                            // Suggestions are raw objects.
+                            for (var index in suggestions) {
+                                var label = suggestions[index];
+                                var value = serviceName + " " + label;
+                                suggestions[index] = {label: label, value: value};
+                            }
                         }
-                    } else {
-                        // Suggestions are raw objects.
-                        for (var index in suggestions) {
-                            var label = suggestions[index];
-                            var value = serviceName + " " + label;
-                            suggestions[index] = {label: label, value: value};
-                        }
-                    }
-                    response(suggestions);
+                        response(suggestions);
+                        return;
+                    };
                 };
-            };
-            service.getSuggestions(serviceArgs, responseWrapper(response));
-            return;
+                service.getSuggestions(serviceArgs, responseWrapper(response));
+                return;
+            }
         }
     }
 
