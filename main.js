@@ -271,26 +271,9 @@ var wikipediaService = {
     description: "Wikipedia routing",
     helpMessage: "[<span class='help-message-input'>language code</span>] <span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
-    serve: function(serviceArgs) {
-        // https://ru.wikipedia.org/w/index.php?search=
-
-        // Problem with: w id
-        // Some language codes can collide with regular words: ab, it, simple, ...
-
-        var languageCode = "en";
-        var articleQuery = serviceArgs;
-
-        // Check whether language was specified.
-        var firstWord = serviceArgs.split(" ", 1)[0];
-        if (WIKIPEDIA_LANGUAGES.indexOf(firstWord) != -1) {
-            // Language has been specified.
-            languageCode = firstWord;
-            articleQuery = serviceArgs.substring(languageCode.length + 1);
-        }
-
-        return go("https://" + languageCode +
-            ".wikipedia.org/w/index.php?search=" +
-            encodeURIComponent(articleQuery));
+    serve: function(serviceArgs, shortArgs) {
+        return go("https://" + shortArgs[0] + ".wikipedia.org/w/index.php?search=" +
+            encodeURIComponent(serviceArgs));
     }
 };
 
@@ -312,11 +295,9 @@ var translateService = {
     description: "Translate on Google Translator",
     helpMessage: "[/from_language[/to_language]] <span class='help-message-input'>query</span>",
     favicon: {url: "url", base64: "url to favicon"},
-    serve: function(serviceArgs, shortArguments) {
-        return go("https://translate.google.com/#auto/en/" + encodeURIComponent(serviceArgs));
-//        console.log(shortArguments);
-//        return go("https://translate.google.com/#" + shortArguments[0] +
-//            "/" + shortArguments[1] + "/" + encodeURIComponent(serviceArgs));
+    serve: function(serviceArgs, shortArgs) {
+        return go("https://translate.google.com/#" + shortArgs[0] + "/" + shortArgs[1] + "/" +
+            encodeURIComponent(serviceArgs));
     }
 };
 
@@ -566,13 +547,19 @@ function processQuery(query) {
     if (service) {
         console.log(service.name + ' ' + shortArgs + " serves " + serviceArgs);
         
-//        for (var index in service.shortArgs) {
-//            if (index >= shortArgs.length) {
-//                shortArgs.push(service.shortArgs[index].defaultValue);
-//            } else if (!shortArgs[index]) {
-//                shortArgs[index] = service.shortArgs[index].defaultValue;
-//            }
-//        }
+        // Set default values for short arguments, if they are not provided.
+        if (!shortArgs) {
+            shortArgs = [];
+        }
+        for (var index in service.shortArgs) {
+            if (index >= shortArgs.length) {
+                shortArgs.push(service.shortArgs[index].defaultValue);
+            } else if (!shortArgs[index]) {
+                shortArgs[index] = service.shortArgs[index].defaultValue;
+            }
+        }
+        console.log(serviceName + " / " + shortArgs + " > " + serviceArgs);
+
         var result = service.serve(serviceArgs, shortArgs);
         if (result.go) {
             return result.go;

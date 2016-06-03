@@ -7,12 +7,15 @@
   - weather we, python docs pydoc
   - translator (https://translate.google.com/#auto/ru/marker)
    + basic with default language arguments
-   - with languages arguments as **short arguments**: `tr/en/ru smart` en -> ru, `tr//ru Deutschland` auto -> ru, `tr maison` auto -> local language
-   - suggestions for languages
+   + with languages arguments as **short arguments**: `tr/en/ru smart` en -> ru, `tr//ru Deutschland` auto -> ru, `tr maison` auto -> local language
+   + suggestions for languages
+   - add languages supported by Google
   - wikipedia
-   - add language argument as a **short argument** `w London` local language, `w/ru google` russian language
-   - suggestions for languages
+   + add language argument as a **short argument** `w London` local language, `w/ru google` russian language
+   + suggestions for languages
    - suggestions for query
+   - set default list of languages
+   - stop filtering language if number of suggestions is big enough
  - suggestions
   - add suggestions for search services
    + google
@@ -68,6 +71,8 @@
 
  - **Instant answers**
    for some servises it is possible to give instant answer, for example for translation probably it is possible to use google translator api to show translation immediatly as user type a query
+
+ - **Calendar as a Suggestion**
 
 ## Futher Ideas
  - add an option to add `@specific_service_name` at the end of service name, such that the user can specify what service to use to accomplish his request
