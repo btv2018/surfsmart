@@ -22,7 +22,6 @@
    - google images
    + youtube
    + duckduckgo
-   - wikipedia
   - add sugestion for routing
   - suggestions for google maps, routing https://developers.google.com/places/web-service/query#location_biasing
    - it is not easy, because it is not allowed to make non-jsonp external call from the page. So using google sugestions requires to implement a gate.
@@ -41,8 +40,7 @@
  + parsing
   + parse dates more acurate: April 26, 26.04, 26/04
   + handle year
- - insert at the beginning of every suggestion the name of the serivece (return an object rather then string like for flight suggestions)
- - add INSTALL.sh script to run scripts/airport-codes-converter.py and other scripts to make the applicaiton ready to run
+ - add INSTALL.sh script to run scripts from `scripts/*` to make the applicaiton ready to run
 
 ## Features
  - **The service as an open search**
@@ -70,7 +68,7 @@
   - add language support for airport code suggestion
 
  - **Instant answers**
-   for some servises it is possible to give instant answer, for example for translation probably it is possible to use google translator api to show translation immediatly as user type a query
+  - for some servises it is possible to give instant answer, for example for translation probably it is possible to use google translator api to show translation immediatly as user type a query
 
  - **Calendar as a Suggestion**
 
@@ -80,6 +78,5 @@
 
 ## Known Issues
  - 12/04 date parsed as Dec 04, but it might be parsed as Apr 12 (see FT:Language support)
- - if select service suggestion it appears after user input, not instead it
  - if select suggestion for duckduckgo (or other services) the selection goes to the input field but the page does not redirect. So it requires two type to get an answer
 

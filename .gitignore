@@ -1,2 +1,2 @@
 *.swp
-airports.js
+generated/*.js
