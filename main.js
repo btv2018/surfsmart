@@ -280,12 +280,12 @@ var wikipediaService = {
 var fromLangShortArgument = {
   name: "from_language",
   defaultValue: 'auto',
-  values: ['auto', 'en','ru','de', 'fr', 'es'],
+  values: GOOGLE_TRANSLATE_LANGS.source_langs,
 };
 var toLangShortArgument = {
   name: "to_language",
   defaultValue: 'ru',
-  values: ['en','ru','de', 'fr', 'es'],
+  values: GOOGLE_TRANSLATE_LANGS.target_langs,
 };
 
 var translateService = {
@@ -394,7 +394,7 @@ function autocomplete(query, response) {
 
             // var shortArg = service.shortArguments[shortArgs.length - 1];
 
-            var valuePrefix = 'tr/' + shortArgs.slice(0, shortArgsNumber - 1).join('/');
+            var valuePrefix = serviceName + '/' + shortArgs.slice(0, shortArgsNumber - 1).join('/');
             if (shortArgsNumber > 1) {
                 valuePrefix += '/';
             }
@@ -408,14 +408,31 @@ function autocomplete(query, response) {
 
             var suggestions = [];
             var shortArgSuggestions = service.shortArgs[shortArgsNumber - 1].values;
-            for (var index in shortArgSuggestions) {
-                var shortArg = shortArgSuggestions[index];
-                if (shortArg.startsWith(providedShortArg)) {
-                    var value = valuePrefix + shortArg + valueSufix;
-                    if (serviceArgs) {
-                        value += ' ' + serviceArgs;
+
+            if (Array.isArray(shortArgSuggestions)) {
+                // Array of strings expected.
+                for (var index in shortArgSuggestions) {
+                    var shortArg = shortArgSuggestions[index];
+                    if (shortArg.startsWith(providedShortArg)) {
+                        var value = valuePrefix + shortArg + valueSufix;
+                        if (serviceArgs) {
+                            value += ' ' + serviceArgs;
+                        }
+                        suggestions.push({label: shortArg, value: value});
                     }
-                    suggestions.push({label: shortArg, value: value});
+                }
+            } else {
+                // Object of suggestions expected.
+                for (var value in shortArgSuggestions) {
+                    var label = shortArgSuggestions[value];
+                    if (value.toLowerCase().startsWith(providedShortArg) || label.toLowerCase().startsWith(providedShortArg)) {
+                        var label = value + " — " + label;
+                        value = valuePrefix + value + valueSufix;
+                        if (serviceArgs) {
+                            value += ' ' + serviceArgs;
+                        }
+                        suggestions.push({label: label, value: value});
+                    }
                 }
             }
 

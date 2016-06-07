@@ -2,6 +2,8 @@
 ## Smart Line Interface for Web
 
 ## TODO
+ - tech dept
+  - use some library to filter, map, limit arrays
  - services
   - news
   - weather we, python docs pydoc
