@@ -269,7 +269,7 @@ var wikipediaService = {
     aliases: ["w"],
     shortArgs: [wikipediaLangShortArgument],
     description: "Wikipedia routing",
-    helpMessage: "[<span class='help-message-input'>language code</span>] <span class='help-message-input'>search query</span>",
+    helpMessage: "[/language=en] <span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
     serve: function(serviceArgs, shortArgs) {
         return go("https://" + shortArgs[0] + ".wikipedia.org/w/index.php?search=" +
@@ -293,7 +293,7 @@ var translateService = {
     aliases: ["t"],
     shortArgs: [fromLangShortArgument, toLangShortArgument],
     description: "Translate on Google Translator",
-    helpMessage: "[/from_language[/to_language]] <span class='help-message-input'>query</span>",
+    helpMessage: "[/from_language=auto[/to_language=ru]] <span class='help-message-input'>query</span>",
     favicon: {url: "url", base64: "url to favicon"},
     serve: function(serviceArgs, shortArgs) {
         return go("https://translate.google.com/#" + shortArgs[0] + "/" + shortArgs[1] + "/" +

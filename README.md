@@ -11,13 +11,15 @@
    + basic with default language arguments
    + with languages arguments as **short arguments**: `tr/en/ru smart` en -> ru, `tr//ru Deutschland` auto -> ru, `tr maison` auto -> local language
    + suggestions for languages
-   - add languages supported by Google
+   + add languages supported by Google
+   - let open the google transate page without query
   - wikipedia
    + add language argument as a **short argument** `w London` local language, `w/ru google` russian language
    + suggestions for languages
    - suggestions for query
    - set default list of languages
    - stop filtering language if number of suggestions is big enough
+   - make laguages sugestions with language code and name
  - suggestions
   - add suggestions for search services
    + google
@@ -45,16 +47,16 @@
  - add INSTALL.sh script to run scripts from `scripts/*` to make the applicaiton ready to run
 
 ## Features
- - **The service as an open search**
+ - **Service as an Open Search**
   - setup nodejs
   - add go method for redirecting and error heandling
   - add suggest method
   - add open search markup for the input field
   - deploy the service
  
- - **Fast suggestions from external sources**
+ - **Fast Suggestions from External Sources**
 
- - **Suggestions for airport codes**
+ - **Suggestions for Airport Codes**
   + add basic suggestions (undependent from cursor position)
   - make suggestions dependent on cursor position
    - make it more general like: `flight %departure% to %destination% on %departure_date:date%[, %back_date:date%][ direct]`
@@ -64,21 +66,28 @@
   - sort airports by importance (try to get it from dbpedia or something making SPARQL request)
   - remove pseudo airports (i.e. ZMU)
 
- - **Language support**
+ - **Language Support**
   - add language support for parsing dates
   - add language support for services
   - add language support for airport code suggestion
 
- - **Instant answers**
+ - **Instant Answers**
   - for some servises it is possible to give instant answer, for example for translation probably it is possible to use google translator api to show translation immediatly as user type a query
 
  - **Calendar as a Suggestion**
+
+ - **Service as a Browser Plugin**
+  - add a special input field
+  - show suggestions
+  - instantly open target page
+  - update search terms on opened page as user modifies it
+  - merge the field to the address bar
 
 ## Futher Ideas
  - add an option to add `@specific_service_name` at the end of service name, such that the user can specify what service to use to accomplish his request
    for example `flight` request will be served with default service, but `flight@kayak` request will be served with Kayak.com service.
 
 ## Known Issues
- - 12/04 date parsed as Dec 04, but it might be parsed as Apr 12 (see FT:Language support)
+ - 12/04 date parsed as Dec 04, but it might be parsed as Apr 12 (see FT:Language Support)
  - if select suggestion for duckduckgo (or other services) the selection goes to the input field but the page does not redirect. So it requires two type to get an answer
 
