@@ -326,18 +326,26 @@ var SERVICES = [
     translateService,
     cppdocService];
 
+// ============================================================================
+
+var L = {
+    startsWith: function(prefix) {
+        return function(string) {
+            return string.startsWith(prefix);
+        };
+    },
+};
+
 function findService(name) {
     if (name) {
         for (var i in SERVICES) {
             var service = SERVICES[i];
-            if (service.name.startsWith(name)) {
+            if (service.name.startsWith(name) || service.aliases.find(L.startsWith(name))) {
                 return service;
             }
         }
     }
 }
-
-// ============================================================================
 
 function parseQuery(query) {
     query = query.trimLeft();
@@ -363,7 +371,6 @@ function parseQuery(query) {
     return {serviceName: serviceName, shortArgs: shortArgs, serviceArgs: serviceArgs};
 }
 
-
 function autocomplete(query, response) {
     var parsedQuery = parseQuery(query);
     var serviceName = parsedQuery.serviceName;
@@ -375,7 +382,7 @@ function autocomplete(query, response) {
         var serviceNameSuggestions = [];
         for (var i in SERVICES) {
             var service = SERVICES[i];
-            if (service.name.startsWith(serviceName)) {
+            if (service.name.startsWith(serviceName) || service.aliases.find(L.startsWith(serviceName))) {
                 serviceNameSuggestions.push(service.name);
             }
         }
@@ -565,9 +572,7 @@ function processQuery(query) {
         console.log(service.name + ' ' + shortArgs + " serves " + serviceArgs);
         
         // Set default values for short arguments, if they are not provided.
-        if (!shortArgs) {
-            shortArgs = [];
-        }
+        shortArgs = shortArgs || [];
         for (var index in service.shortArgs) {
             if (index >= shortArgs.length) {
                 shortArgs.push(service.shortArgs[index].defaultValue);
