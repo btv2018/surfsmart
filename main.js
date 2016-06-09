@@ -340,7 +340,7 @@ function findService(name) {
     if (name) {
         for (var i in SERVICES) {
             var service = SERVICES[i];
-            if (service.name.startsWith(name) || service.aliases.find(L.startsWith(name))) {
+            if (service.name.startsWith(name) || service.aliases.indexOf(name) >= 0) {
                 return service;
             }
         }
@@ -382,7 +382,7 @@ function autocomplete(query, response) {
         var serviceNameSuggestions = [];
         for (var i in SERVICES) {
             var service = SERVICES[i];
-            if (service.name.startsWith(serviceName) || service.aliases.find(L.startsWith(serviceName))) {
+            if (service.name.startsWith(serviceName) || service.aliases.indexOf(serviceName) >= 0) {
                 serviceNameSuggestions.push(service.name);
             }
         }
