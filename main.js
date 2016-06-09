@@ -316,14 +316,20 @@ var cppdocService = {
     }
 };
 
+var pyVersionShortArg = {
+  defaultValue: '2',
+  values: ['2', '3'],
+};
 var pydocService = {
     name: "pydoc",
     aliases: ["py"],
-    description: "Python documentation search on ???",
-    helpMessage: "<span class='help-message-input'>search query</span>",
+    shortArgs: [pyVersionShortArg],
+    description: "Python documentation search on docs.python.org",
+    helpMessage: "[/version=2] <span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
-    serve: function(serviceArgs) {
-        return go("http://www.cplusplus.com/search.do?q=" + encodeURIComponent(serviceArgs));
+    serve: function(serviceArgs, shortArgs) {
+        return go("https://docs.python.org/" + shortArgs[0] + "/search.html?q=" +
+            encodeURIComponent(serviceArgs));
     }
 };
 
