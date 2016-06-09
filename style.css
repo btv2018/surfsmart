@@ -2,13 +2,14 @@
 body {
     background-color: #f2f2f2;
     font-family: "Lucida Console", Monaco, monospace;
+    font-size: 14px;
 }
 
 h1 {
     color: #444444;
     text-align: center;
     font-size: 50px;
-    padding: 50px 1px 1px 1px;
+    padding: 20px 1px 1px 1px;
     margin: 0px;
 }
 
@@ -33,6 +34,7 @@ div.form-outer {
 div#service-help {
 /*    text-align: left; */
     padding: 8px;
+    height: 15px;
 }
 
 div.help {
@@ -48,6 +50,13 @@ td.service-name {
     font-weight: bold;
 }
 
+tr.service-category {
+    font-weight: bold;
+    font-size: 16px;
+    color: #555555;
+    margin: 40px;
+}
+
 tr.not-implemented {
     color: #bbbbbb;
 }
@@ -59,6 +68,10 @@ td.meta-service-name {
 
 td {
     padding: 3px 8px;
+}
+
+th {
+    padding: 10px 3px 3px 3px;
 }
 
 input {
@@ -80,8 +93,11 @@ input {
 
 #footer {
     text-align: right;
-    font-size: 12px;
+    font-size: 10px;
     vertical-align: bottom;
-    padding: 12px;
+}
+
+span {
+    padding: 10px;
 }
 

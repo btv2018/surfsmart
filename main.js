@@ -316,7 +316,27 @@ var cppdocService = {
     }
 };
 
+var pydocService = {
+    name: "pydoc",
+    aliases: ["py"],
+    description: "Python documentation search on ???",
+    helpMessage: "<span class='help-message-input'>search query</span>",
+    favicon: {url: "url", base64: "url to favicon"},
+    serve: function(serviceArgs) {
+        return go("http://www.cplusplus.com/search.do?q=" + encodeURIComponent(serviceArgs));
+    }
+};
 
+
+var SERV_C = [
+    {description: "Web Search", services: [duckduckgoService, googleService, googleImagesService, youtubeService]},
+    {description: "Maps and Travel", services: [mapSearchService, routingService, flightSearchService]},
+    {description: "Wiki", services: [wikipediaService]},
+    {description: "Documentation Search", services: [cppdocService, pydocService]},
+    {description: "Translators", services: [translateService]},
+];
+
+// TODO: Generate this list from SERV_C.
 var SERVICES = [
     duckduckgoService,
     googleService, googleImagesService, youtubeService,
@@ -324,7 +344,10 @@ var SERVICES = [
     flightSearchService,
     wikipediaService,
     translateService,
-    cppdocService];
+    cppdocService,
+    pydocService,
+];
+
 
 // ============================================================================
 
@@ -508,16 +531,26 @@ $(document).ready(function() {
 
 function main() {
     var helpTable = $("#help-table");
-    for (var i in SERVICES) {
-        var service = SERVICES[i];
+    for (var i in SERV_C) {
+        var serviceCategory = SERV_C[i];
         var tr = $.parseHTML(
-            "<tr>" +
-//                "<td><img src='" + service.favicon.url + "'/></td>" +
-                "<td class='service-name'>" + service.name + "</td>" +
-                "<td>" + service.aliases.join(", ") + "</td>" +
-                "<td>" + service.description + "</td>" +
+            "<tr class='service-category'>" +
+                "<th colspan='3'>" + serviceCategory.description+ "</th>" +
             "</tr>");
         helpTable.append(tr);
+
+        var services = serviceCategory.services;
+        for (var i in services) {
+            var service = services[i];
+            var tr = $.parseHTML(
+                "<tr>" +
+    //                "<td><img src='" + service.favicon.url + "'/></td>" +
+                    "<td class='service-name'>" + service.name + "</td>" +
+                    "<td>" + service.aliases.join(", ") + "</td>" +
+                    "<td>" + service.description + "</td>" +
+                "</tr>");
+            helpTable.append(tr);
+        }
     }
     $("#help-table-fallback").hide();
 

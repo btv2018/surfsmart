@@ -1,6 +1,8 @@
 # SurfSmart
 ## Smart Line Interface for Web
 
+Try it [http://btv2018.github.io/surfsmart]
+
 ## TODO
  - tech dept
   - use some library to filter, map, limit arrays
@@ -8,11 +10,11 @@
   - news
   - weather we, python docs pydoc
   - translator (https://translate.google.com/#auto/ru/marker)
-   + basic with default language arguments
-   + with languages arguments as **short arguments**: `tr/en/ru smart` en -> ru, `tr//ru Deutschland` auto -> ru, `tr maison` auto -> local language
-   + suggestions for languages
-   + add languages supported by Google
-   - let open the google transate page without query
+   - [+] basic with default language arguments
+   - [+] with languages arguments as **short arguments**: `tr/en/ru smart` en -> ru, `tr//ru Deutschland` auto -> ru, `tr maison` auto -> local language
+   - [+] suggestions for languages
+   - [+] add languages supported by Google
+   - [-] let open the google transate page without query
   - wikipedia
    + add language argument as a **short argument** `w London` local language, `w/ru google` russian language
    + suggestions for languages
@@ -22,10 +24,7 @@
    - make laguages sugestions with language code and name
  - suggestions
   - add suggestions for search services
-   + google
    - google images
-   + youtube
-   + duckduckgo
   - add sugestion for routing
   - suggestions for google maps, routing https://developers.google.com/places/web-service/query#location_biasing
    - it is not easy, because it is not allowed to make non-jsonp external call from the page. So using google sugestions requires to implement a gate.
