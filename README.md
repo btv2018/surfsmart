@@ -81,12 +81,15 @@ Try it [http://btv2018.github.io/surfsmart]
   - instantly open target page
   - update search terms on opened page as user modifies it
   - merge the field to the address bar
+  - add an option to reuse tabs
 
 ## Futher Ideas
  - add an option to add `@specific_service_name` at the end of service name, such that the user can specify what service to use to accomplish his request
    for example `flight` request will be served with default service, but `flight@kayak` request will be served with Kayak.com service.
+ - gmail search, compose emails
 
 ## Known Issues
  - 12/04 date parsed as Dec 04, but it might be parsed as Apr 12 (see FT:Language Support)
  - if select suggestion for duckduckgo (or other services) the selection goes to the input field but the page does not redirect. So it requires two type to get an answer
+ - if click on a suggestion, it does not go to the input field
 
