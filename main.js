@@ -512,6 +512,12 @@ function autocomplete(query, response) {
     response([]);
 }
 
+function onSelectSuggestion(suggestion) {
+    var nextUrl = processQuery(suggestion);
+    queryInput.select();
+    window.open(nextUrl);
+    return true;
+}
 
 $(document).ready(function() {
     main();
@@ -523,7 +529,7 @@ $(document).ready(function() {
         },
         minLength: 0,
         select: function(event, ui) {
-            return false;
+            return onSelectSuggestion(ui.item.value);
         },
         open: function() {
             $(this).removeClass("ui-corner-all").addClass("ui-corner-top");

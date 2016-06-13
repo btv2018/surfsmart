@@ -90,6 +90,6 @@ Try it [http://btv2018.github.io/surfsmart]
 
 ## Known Issues
  - 12/04 date parsed as Dec 04, but it might be parsed as Apr 12 (see FT:Language Support)
- - if select suggestion for duckduckgo (or other services) the selection goes to the input field but the page does not redirect. So it requires two type to get an answer
- - if click on a suggestion, it does not go to the input field
+ + if select suggestion for duckduckgo (or other services) the selection goes to the input field but the page does not redirect. So it requires two type to get an answer
+ + if click on a suggestion, it does not go to the input field
 
