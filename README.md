@@ -37,6 +37,7 @@ Try it [http://btv2018.github.io/surfsmart]
  - UI
   - show service icon on the left side of the input
   - dynamicially add icon for swaping origin and destination
+  - put service help message somewhere else, otherwise it is hide by suggestions list
  + dynamicially generate help overview
  + add autocomplete for service names
  + add autocomplete for service name aliases
