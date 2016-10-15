@@ -521,6 +521,7 @@ function onSelectSuggestion(suggestion) {
 
 $(document).ready(function() {
     main();
+    $("#versionSpan").text("version: " + VERSION);
     var queryInput = $("#queryInput");
 
     queryInput.autocomplete({
