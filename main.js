@@ -556,6 +556,7 @@ function processInput(query, inputSource) {
 
 $(document).ready(function() {
     main();
+    $("#versionSpan").text("version: " + VERSION);
     var queryInput = $("#queryInput");
 
     queryInput.autocomplete({
