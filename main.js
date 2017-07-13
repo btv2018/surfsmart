@@ -42,7 +42,8 @@ var duckduckgoService = {
                 response(suggestions);
             }
         });
-    }
+    },
+    goFromSuggestion: true,
 };
 
 var googleService = {
@@ -67,7 +68,8 @@ var googleService = {
                 response(data[1]);
             }
         });
-    }
+    },
+    goFromSuggestion: true,
 };
 
 var googleImagesService = {
@@ -81,7 +83,8 @@ var googleImagesService = {
     },
     getSuggestions: function(serviceArgs, response) {
         return response(["flowers", "flower field"]);
-    }
+    },
+    goFromSuggestion: true,
 };
 
 var youtubeService = {
@@ -113,7 +116,8 @@ var youtubeService = {
                 response(suggestions);
             }
         });
-    }
+    },
+    goFromSuggestion: true,
 };
 
 var mapSearchService = {
@@ -124,7 +128,8 @@ var mapSearchService = {
     favicon: {url: "url", base64: "url to favicon"},
     serve: function(serviceArgs) {
         return go("https://www.google.com/maps?q=" + encodeURIComponent(serviceArgs));
-    }
+    },
+    goFromSuggestion: true,
 };
 
 var routingService = {
@@ -274,7 +279,8 @@ var wikipediaService = {
     serve: function(serviceArgs, shortArgs) {
         return go("https://" + shortArgs[0] + ".wikipedia.org/w/index.php?search=" +
             encodeURIComponent(serviceArgs));
-    }
+    },
+    goFromSuggestion: true,
 };
 
 var fromLangShortArgument = {
@@ -298,7 +304,8 @@ var translateService = {
     serve: function(serviceArgs, shortArgs) {
         return go("https://translate.google.com/#" + shortArgs[0] + "/" + shortArgs[1] + "/" +
             encodeURIComponent(serviceArgs));
-    }
+    },
+    goFromSuggestion: true,
 };
 
 var cppdocService = {
@@ -313,7 +320,8 @@ var cppdocService = {
             serviceArgs = serviceArgs.substring(stdPrefix.length);
         }
         return go("http://www.cplusplus.com/search.do?q=" + encodeURIComponent(serviceArgs));
-    }
+    },
+    goFromSuggestion: true,
 };
 
 var pyVersionShortArg = {
@@ -330,7 +338,8 @@ var pydocService = {
     serve: function(serviceArgs, shortArgs) {
         return go("https://docs.python.org/" + shortArgs[0] + "/search.html?q=" +
             encodeURIComponent(serviceArgs));
-    }
+    },
+    goFromSuggestion: true,
 };
 
 
@@ -512,10 +521,36 @@ function autocomplete(query, response) {
     response([]);
 }
 
-function onSelectSuggestion(suggestion) {
-    var nextUrl = processQuery(suggestion);
-    queryInput.select();
-    window.open(nextUrl);
+// TODO: How to make enum?
+var inputSource = {
+    suggestion: {suggestion: true},
+    enter: {enter: true},
+};
+
+function processInput(query, inputSource) {
+    var go = false;
+    if (inputSource.enter) {
+        go = true;
+    } else {
+        var parsedQuery = parseQuery(query);
+        var serviceName = parsedQuery.serviceName;
+        var service = findService(serviceName);
+        console.log(service);
+        if (service) {
+            if (service.goFromSuggestion) {
+                go = true;
+            }
+        }
+    }
+    if (go) {
+        var result = processQuery(query);
+        if (result.go) {
+            queryInput.select();
+            window.open(result.go);
+        } else {
+            console.log("Error: " + result.error);
+        }
+    }
     return true;
 }
 
@@ -530,7 +565,7 @@ $(document).ready(function() {
         },
         minLength: 0,
         select: function(event, ui) {
-            return onSelectSuggestion(ui.item.value);
+            return processInput(ui.item.value, inputSource.suggestion);
         },
         open: function() {
             $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
@@ -576,10 +611,7 @@ function main() {
     queryInput.addEventListener("keypress", function(event) {
         var query = queryInput.value;
         if (event.keyCode == 13) {
-            //window.location = processQuery(query);
-            var nextUrl = processQuery(query);
-            queryInput.select();
-            window.open(nextUrl);
+            processInput(query, inputSource.enter);
         }
     });
 }
@@ -607,16 +639,11 @@ function processQuery(query) {
     var serviceArgs = parsedQuery.serviceArgs;
 
     if (!serviceArgs) {
-        console.log("Error: bad query");
-        return;
+        return error("No service arguments");
     }
-
-    console.log(serviceName + " > " + serviceArgs);
 
     var service = findService(serviceName);
     if (service) {
-        console.log(service.name + ' ' + shortArgs + " serves " + serviceArgs);
-
         // Set default values for short arguments, if they are not provided.
         shortArgs = shortArgs || [];
         for (var index in service.shortArgs) {
@@ -626,18 +653,11 @@ function processQuery(query) {
                 shortArgs[index] = service.shortArgs[index].defaultValue;
             }
         }
+
         console.log(serviceName + " / " + shortArgs + " > " + serviceArgs);
-
-        var result = service.serve(serviceArgs, shortArgs);
-        if (result.go) {
-            return result.go;
-        } else {
-            console.log("Error: " + result.error);
-            return;
-        }
+        return service.serve(serviceArgs, shortArgs);
     }
-
-    console.log("Warning: no service found with name " + serviceName);
+    return error("No such service");
 }
 
 function parseDate(dateString) {
