@@ -164,7 +164,7 @@ var flightSearchService = {
         var origin = parsedArgs[1];
         var destination = parsedArgs[2];
         var queryTail = parsedArgs[3];
-        
+
         var onlyDirect = false;
         var splitByDirect = queryTail.split("direct");
         if (splitByDirect.length > 1) {
@@ -224,7 +224,7 @@ var flightSearchService = {
             }
             return suggestions;
         }
-        
+
         var regexpToOn = /(.*) to (.*) on (.*)/g;
         var regexpTo = /(.*) to (.*)/g;
 
@@ -268,7 +268,7 @@ var wikipediaService = {
     name: "wikipedia",
     aliases: ["w"],
     shortArgs: [wikipediaLangShortArgument],
-    description: "Wikipedia routing",
+    description: "Wikipedia search",
     helpMessage: "[/language=en] <span class='help-message-input'>search query</span>",
     favicon: {url: "url", base64: "url to favicon"},
     serve: function(serviceArgs, shortArgs) {
@@ -482,7 +482,7 @@ function autocomplete(query, response) {
             console.log("Service " + service.name + " found");
             if (service.getSuggestions) {
                 console.log("Requesting suggestions for '" + serviceArgs + "'");
-                
+
                 var responseWrapper = function(response) {
                     return function(suggestions) {
                         if (suggestions.length > 0 && suggestions[0].hasOwnProperty("label")) {
@@ -616,7 +616,7 @@ function processQuery(query) {
     var service = findService(serviceName);
     if (service) {
         console.log(service.name + ' ' + shortArgs + " serves " + serviceArgs);
-        
+
         // Set default values for short arguments, if they are not provided.
         shortArgs = shortArgs || [];
         for (var index in service.shortArgs) {
@@ -646,7 +646,7 @@ function parseDate(dateString) {
 
 
 function buildMomondoUrl(args) {
-    console.log("URL for momondo with args: " + args.toSource());
+    console.log("URL for momondo with args: " + JSON.stringify(args));
 
     var segmentNumbers = 1;
     var tripType = 1;
@@ -670,5 +670,3 @@ function buildMomondoUrl(args) {
 function formatDateToBase(date) {
     return date.toString("dd-MM-yyyy");
 }
-
-

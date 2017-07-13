@@ -43,7 +43,13 @@ Try it [http://btv2018.github.io/surfsmart]
  + parsing
   + parse dates more acurate: April 26, 26.04, 26/04
   + handle year
- - add INSTALL.sh script to run scripts from `scripts/*` to make the applicaiton ready to run
+ - add oxforddictionaries
+  - https://en.oxforddictionaries.com/search?utf8=%E2%9C%93&filter=dictionary&query=promote
+  - https://en.oxforddictionaries.com/search?callback=jQuery1111038667220081717835_1476703956582&query=su&filter=dictionary&_=1476703956583
+	- http://www.wordreference.com/
+ - add https://www.collinsdictionary.com/dictionary/english/
+ - add amazon de com
+
 
 ## Features
  - **Service as an Open Search**
