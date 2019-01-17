@@ -328,8 +328,8 @@ var translateService = {
     helpMessage: "[/from_language=auto[/to_language=ru]] <span class='help-message-input'>query</span>",
     favicon: {url: "url", base64: "url to favicon"},
     serve: function(serviceArgs, shortArgs) {
-        return go("https://translate.google.com/#" + shortArgs[0] + "/" + shortArgs[1] + "/" +
-            encodeURIComponent(serviceArgs));
+        return go("https://translate.google.com/#view=home&op=translate&sl=" + shortArgs[0] +
+                  "&tl=" + shortArgs[1] + "&text=" + encodeURIComponent(serviceArgs));
     },
     goFromSuggestion: true,
 };
