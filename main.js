@@ -24,7 +24,7 @@ var collinsDictionaryService = {
     helpMessage: "[/language=en] <span class='help-message-input'>search query</span>",
     shortArgs: [collinsLangShortArgument],
     serve: function(serviceArgs, shortArgs) {
-				if (shortArgs[0] == 'de')
+        if (shortArgs[0] == 'de')
             return go("https://www.collinsdictionary.com/dictionary/german-english/" + encodeURIComponent(serviceArgs));
         else
             return go("https://www.collinsdictionary.com/dictionary/english/" + encodeURIComponent(serviceArgs));

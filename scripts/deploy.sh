@@ -1,7 +1,9 @@
 #!/bin/sh
 
+set -e
+
 echo "Generate data ..."
-./script/build.sh
+./scripts/build.sh
 
 echo "Remove gh-pages branch ..."
 git branch -D gh-pages
