@@ -39,6 +39,16 @@ var collinsDictionaryService = {
     goFromSuggestion: true,
 }
 
+var verbformenService = {
+    name: "verbformen",
+    aliases: ["vf"],
+    description: "Verb Formen",
+    helpMessage: "<span class='help-message-input'>search query</span>",
+    serve: function(serviceArgs) {
+        return go("https://www.verbformen.de/?w=" + encodeURIComponent(serviceArgs));
+    },
+    goFromSuggestion: true,
+}
 
 var duckduckgoService = {
     name: "duckduckgo",
@@ -374,7 +384,8 @@ var SERV_C = [
     {description: "Maps and Travel", services: [mapSearchService, routingService, flightSearchService]},
     {description: "Wiki", services: [wikipediaService]},
     {description: "Documentation Search", services: [cppdocService, pydocService]},
-    {description: "Translators and Dictionaries", services: [translateService, collinsDictionaryService]},
+    {description: "Translators and Dictionaries",
+     services: [translateService, collinsDictionaryService, verbformenService]},
 ];
 
 // TODO: Generate this list from SERV_C.
@@ -388,6 +399,7 @@ var SERVICES = [
     cppdocService,
     pydocService,
     collinsDictionaryService,
+    verbformenService,
 ];
 
 
