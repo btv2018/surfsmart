@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import csv
 import json
 
 def convert(in_file_name, out_file_name):
-    print "Extracting airport codes from", in_file_name, "..."
+    print("Extracting airport codes from", in_file_name, "...")
     with open(in_file_name) as in_file:
         csv_reader = csv.reader(in_file)
         airports = []
@@ -18,12 +18,12 @@ def convert(in_file_name, out_file_name):
                     'code': code,
                 }
                 airports.append(airport)
-        print len(airports), "airports found."
+        print(len(airports), "airports found.")
         with open(out_file_name, 'w') as out_file:
             json_dump = json.dumps(airports, separators=(',', ':'))
             out_file.write("AIRPORTS=")
             out_file.write(json_dump)
-            print "Output file written to", out_file_name
+            print("Output file written to", out_file_name)
 
 if __name__ == '__main__':
     convert('external/data/airports.dat', 'generated/airports.js')
