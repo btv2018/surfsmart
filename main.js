@@ -43,6 +43,28 @@ var amazonService = {
     goFromSuggestion: true,
 }
 
+var ebayKleinanzeigenService = {
+    name: "ebaykleinanzieigen",
+    aliases: ["ek"],
+    description: "ebay Kleinanzeigen",
+    helpMessage: "/postcode[/radius=20] <span class='help-message-input'>search query</span>",
+    shortArgs: [
+        {
+            defaultValue: '',
+            values: [],
+        },
+        {
+            defaultValue: 20,
+            values: [5, 10, 20, 30, 50, 100, 250, 200],
+        },
+        ],
+    serve: function(serviceArgs, shortArgs) {
+        return go("https://www.ebay-kleinanzeigen.de/s-suchanfrage.html?keywords=" + encodeURIComponent(serviceArgs) + "&locationStr=" + shortArgs[0] + "&radius=" + shortArgs[1]);
+    },
+    getSuggestions: googleSuggestions,
+    goFromSuggestion: true,
+}
+
 var collinsLangShortArgument = {
   defaultValue: 'en',
   values: ['en', 'de'],
@@ -408,7 +430,7 @@ var pydocService = {
 
 var SERV_C = [
     {description: "Web Search", services: [duckduckgoService, googleService, googleImagesService, youtubeService]},
-    {description: "Web Shopping", services: [amazonService]},
+    {description: "Web Shopping", services: [amazonService, ebayKleinanzeigenService]},
     {description: "Maps and Travel", services: [mapSearchService, routingService, flightSearchService]},
     {description: "Wiki", services: [wikipediaService]},
     {description: "Documentation Search", services: [cppdocService, pydocService]},
@@ -420,7 +442,7 @@ var SERV_C = [
 var SERVICES = [
     duckduckgoService,
     googleService, googleImagesService, youtubeService,
-    amazonService,
+    amazonService, ebayKleinanzeigenService,
     mapSearchService, routingService,
     flightSearchService,
     wikipediaService,
