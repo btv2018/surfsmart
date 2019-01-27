@@ -28,16 +28,28 @@ var googleSuggestions = function(serviceArgs, response) {
 };
 
 var amazonService = {
-        name: "amazon",
-        aliases: ["a"],
-        description: "Amazon E-Commerce",
-        helpMessage: "[/region=de] <span class='help-message-input'>search query</span>",
-        shortArgs: [{
-                defaultValue: 'de',
-                values: ['com', 'de'],
-        }],
+    name: "amazon",
+    aliases: ["a"],
+    description: "Amazon E-Commerce",
+    helpMessage: "[/region=de] <span class='help-message-input'>search query</span>",
+    shortArgs: [{
+        defaultValue: 'de',
+        values: ['com', 'de'],
+    }],
     serve: function(serviceArgs, shortArgs) {
-                return go("https://www.amazon." + encodeURIComponent(shortArgs[0]) + "/s/field-keywords=" + encodeURIComponent(serviceArgs));
+        return go("https://www.amazon." + encodeURIComponent(shortArgs[0]) + "/s/field-keywords=" + encodeURIComponent(serviceArgs));
+    },
+    getSuggestions: googleSuggestions,
+    goFromSuggestion: true,
+}
+
+var ebayService = {
+    name: "ebay",
+    aliases: ["e"],
+    description: "ebay E-Commerce",
+    helpMessage: "<span class='help-message-input'>search query</span>",
+    serve: function(serviceArgs, shortArgs) {
+        return go("https://www.ebay.de/sch/i.html?_nkw=" + encodeURIComponent(serviceArgs));
     },
     getSuggestions: googleSuggestions,
     goFromSuggestion: true,
@@ -430,7 +442,7 @@ var pydocService = {
 
 var SERV_C = [
     {description: "Web Search", services: [duckduckgoService, googleService, googleImagesService, youtubeService]},
-    {description: "Web Shopping", services: [amazonService, ebayKleinanzeigenService]},
+    {description: "Web Shopping", services: [amazonService, ebayService, ebayKleinanzeigenService]},
     {description: "Maps and Travel", services: [mapSearchService, routingService, flightSearchService]},
     {description: "Wiki", services: [wikipediaService]},
     {description: "Documentation Search", services: [cppdocService, pydocService]},
@@ -442,7 +454,7 @@ var SERV_C = [
 var SERVICES = [
     duckduckgoService,
     googleService, googleImagesService, youtubeService,
-    amazonService, ebayKleinanzeigenService,
+    amazonService, ebayService, ebayKleinanzeigenService,
     mapSearchService, routingService,
     flightSearchService,
     wikipediaService,
