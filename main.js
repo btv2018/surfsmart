@@ -593,19 +593,23 @@ function autocomplete(query, response) {
             console.log("Service " + service.name + " found");
             if (service.getSuggestions) {
                 console.log("Requesting suggestions for '" + serviceArgs + "'");
+                var prefix = serviceName;
+                if (shortArgs !== undefined)
+                    prefix += '/' + shortArgs.join('/')
+                prefix += ' '
 
                 var responseWrapper = function(response) {
                     return function(suggestions) {
                         if (suggestions.length > 0 && suggestions[0].hasOwnProperty("label")) {
                             // Suggestions are objects with labels and values.
                             for (var index in suggestions) {
-                                suggestions[index].value = serviceName + " " + suggestions[index].value;
+                                suggestions[index].value = prefix + suggestions[index].value;
                             }
                         } else {
                             // Suggestions are raw objects.
                             for (var index in suggestions) {
                                 var label = suggestions[index];
-                                var value = serviceName + " " + label;
+                                var value = prefix + label;
                                 suggestions[index] = {label: label, value: value};
                             }
                         }
