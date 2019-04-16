@@ -37,7 +37,7 @@ var amazonService = {
         values: ['com', 'de'],
     }],
     serve: function(serviceArgs, shortArgs) {
-        return go("https://www.amazon." + encodeURIComponent(shortArgs[0]) + "/s/field-keywords=" + encodeURIComponent(serviceArgs));
+        return go("https://www.amazon." + encodeURIComponent(shortArgs[0]) + "/s?k=" + encodeURIComponent(serviceArgs));
     },
     getSuggestions: googleSuggestions,
     goFromSuggestion: true,
