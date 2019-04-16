@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>SurfSmart: Smart Line Interface for Web</title>
+</head>
+
+<body>
+  <link rel="stylesheet" href="external/jquery-ui-1.11.4.custom/jquery-ui.dark-theme.css"/>
+  <link rel="stylesheet" href="style-dark-theme.css"/>
+  <link rel="icon" href="sm-icon.png"/>
+
+  <script src="external/jquery-1.12.3.js"></script>
+  <script src="external/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+  <script src="external/datejs/date.js"></script>
+  <script src="generated/airports.js"></script>
+  <script src="generated/google-translate-languages.js"></script>
+  <script src="generated/version.js"></script>
+  <script src="main.js"></script>
+
+  <div>
+
+  <h1>SurfSmart</h1>
+  <p>Smart Line Interface for Web</p>
+ 
+  <div class="form-outer">
+    <div class="form">
+      <input type="text" name="query" id="queryInput" autofocus/>
+      <!--button type="button" onclick="alert('Hello world!')">Go</button-->
+    </div>
+    <div id="service-help"></div>
+  </div>
+
+  <div id="outer">
+  <div class="help">
+    <table id="help-table"></table>
+    <table id="help-table-fallback">
+      <tr><td class="service-name">duckduckgo</td><td>d</td><td>DuckDuckGo Web search</td></tr>
+      <tr><td class="service-name">google</td><td>g</td><td>Google Web search</td></tr>
+      <tr><td class="service-name">googleimages</td><td>gi</td><td>Google Images search</td></tr>
+      <tr><td class="service-name">youtube</td><td>y</td><td>YouTube search</td></tr>
+      <tr><td class="service-name">map</td><td>m</td><td>Google Maps search</td></tr>
+      <tr><td class="service-name">route</td><td>r</td><td>Routing in Google Maps</td></tr>
+      <tr><td class="service-name">flight</td><td>f</td><td>Flight search in Momondo.com</td></tr>
+      <tr class="not-implemented"><td class="service-name">hotel</td><td>ho</td><td>Hotel search in Booking.com</td></tr>
+      <tr class="not-implemented"><td class="service-name">car</td><td></td><td>Car rental search in Momondo.com</td></tr>
+      <tr><td class="service-name">wikipedia</td><td>w</td><td>Wikipedia search</td></tr>
+      <tr class="not-implemented"><td class="service-name">papersearch</td><td>ps</td><td>Scientific literature search in<br/>csxstatic.ist.psu.edu</td></tr>
+
+      <tr><td class="service-name">cppdoc</td><td>c</td><td>STL documentation search in cplusplus.com</td></tr>
+      <tr class="not-implemented"><td class="service-name">weather</td><td>wt</td><td>Weather search in AccuWeather.com</td></tr>
+
+      <tr class="not-implemented"><td class="meta-service-name">history</td><td>h</td><td>Search in history</td></tr>
+    </table>
+  </div>
+  </div>
+
+  <div id="footer">
+    <span id="versionSpan"></span>
+    <span><a href="https://github.com/btv2018/surfsmart">project on GitHub</a></span>
+  </div>
+  
+  </div>
+</body>
+</html>
+
